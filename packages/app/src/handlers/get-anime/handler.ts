@@ -1,6 +1,6 @@
-﻿import { Handler } from 'aws-lambda/handler';
+﻿import type { Handler } from 'aws-lambda/handler';
 
-import { BotRequest, BotResponse } from '../../../../../third-party/common/ts/interfaces';
+import type { BotRequest, BotResponse } from '../../../../../third-party/common/ts/interfaces';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { getExistingVideos, setToken } from '../../../../../third-party/loan-api/src/loan-api-client';
 import { config, initConfig } from '../../config/config';
@@ -11,87 +11,87 @@ import { getAnimeForUser, getRegisteredEpisodes } from './repository';
 import { sendVideoRegisteredNotification } from './sns-client';
 
 const addAnime = async (request: BotRequest): Promise<VideoStatusNum> => {
-    const videoKey = request.videoKey;
+  const videoKey = request.videoKey;
 
-    const videoInfos = await getExistingVideos(videoKey.myAnimeListId, videoKey.dub);
-    console.log('Video fetched from LoanAPI: ' + JSON.stringify(videoInfos));
+  const videoInfos = await getExistingVideos(videoKey.myAnimeListId, videoKey.dub);
+  console.log('Video fetched from LoanAPI: ' + JSON.stringify(videoInfos));
 
-    const dubEpisodes = videoInfos.filter(x => x.myAnimeListId === videoKey.myAnimeListId && x.dub === videoKey.dub);
+  const dubEpisodes = videoInfos.filter(x => x.myAnimeListId === videoKey.myAnimeListId && x.dub === videoKey.dub);
 
-    const requestedVideo = dubEpisodes.find(x => x.episode === videoKey.episode);
-    if (!requestedVideo) {
-        console.warn('Video not available: ' + JSON.stringify(request));
-        return VideoStatusNum.NotAvailable;
-    }
+  const requestedVideo = dubEpisodes.find(x => x.episode === videoKey.episode);
+  if (!requestedVideo) {
+    console.warn('Video not available: ' + JSON.stringify(request));
+    return VideoStatusNum.NotAvailable;
+  }
 
-    const registeredEpisodes = await getRegisteredEpisodes(videoKey.myAnimeListId, videoKey.dub);
-    const videosToRegister = dubEpisodes.filter(n => !registeredEpisodes.includes(n.episode));
-    console.log('Videos to register: ' + JSON.stringify(videosToRegister));
+  const registeredEpisodes = await getRegisteredEpisodes(videoKey.myAnimeListId, videoKey.dub);
+  const videosToRegister = dubEpisodes.filter(n => !registeredEpisodes.includes(n.episode));
+  console.log('Videos to register: ' + JSON.stringify(videosToRegister));
 
-    await insertVideo(videosToRegister);
-    console.log('Video added to database');
+  await insertVideo(videosToRegister);
+  console.log('Video added to database');
 
-    await increasePriority(request.videoKey);
-    console.log('Priority increased for requested video: ' + JSON.stringify(requestedVideo));
+  await increasePriority(request.videoKey);
+  console.log('Priority increased for requested video: ' + JSON.stringify(requestedVideo));
 
-    await sendVideoRegisteredNotification(videosToRegister);
-    console.log('Video registered notification sent: ' + JSON.stringify(videosToRegister));
+  await sendVideoRegisteredNotification(videosToRegister);
+  console.log('Video registered notification sent: ' + JSON.stringify(videosToRegister));
 
-    return VideoStatusNum.Pending;
+  return VideoStatusNum.Pending;
 }
 
 const process = async (request: BotRequest): Promise<BotResponse> => {
-    const video = await getAnimeForUser(request.videoKey);
-    console.log('Video: ' + JSON.stringify(video));
+  const video = await getAnimeForUser(request.videoKey);
+  console.log('Video: ' + JSON.stringify(video));
 
-    switch (video?.status) {
-        case VideoStatusNum.Downloaded:
-        case VideoStatusNum.Failed: {
-            const response = {
-                status: videoStatusToStr(video.status),
-                messageId: video.messageId,
-                scenes: video.scenes,
-                publishingDetails: video.publishingDetails,
-            };
-            console.log('Returning video as is: ' + JSON.stringify(response));
-            return response;
-        }
-
-        case VideoStatusNum.Pending:
-        case VideoStatusNum.Downloading: {
-            console.log('Returning video as pending or downloading');
-            await increasePriority(request.videoKey);
-            return {
-                status: videoStatusToStr(video.status),
-                messageId: undefined,
-                scenes: undefined,
-                publishingDetails: undefined,
-            };
-        }
-
-        case undefined: {
-            console.log('Adding anime');
-            const status = await addAnime(request);
-            return {
-                status: videoStatusToStr(status),
-                messageId: undefined,
-                scenes: undefined,
-                publishingDetails: undefined,
-            };
-        }
-
-        default:
-            throw new RangeError('Incorrect status');
+  switch (video?.status) {
+    case VideoStatusNum.Downloaded:
+    case VideoStatusNum.Failed: {
+      const response = {
+        status: videoStatusToStr(video.status),
+        messageId: video.messageId,
+        scenes: video.scenes,
+        publishingDetails: video.publishingDetails,
+      };
+      console.log('Returning video as is: ' + JSON.stringify(response));
+      return response;
     }
+
+    case VideoStatusNum.Pending:
+    case VideoStatusNum.Downloading: {
+      console.log('Returning video as pending or downloading');
+      await increasePriority(request.videoKey);
+      return {
+        status: videoStatusToStr(video.status),
+        messageId: undefined,
+        scenes: undefined,
+        publishingDetails: undefined,
+      };
+    }
+
+    case undefined: {
+      console.log('Adding anime');
+      const status = await addAnime(request);
+      return {
+        status: videoStatusToStr(status),
+        messageId: undefined,
+        scenes: undefined,
+        publishingDetails: undefined,
+      };
+    }
+
+    default:
+      throw new RangeError('Incorrect status');
+  }
 }
 
 export const handler: Handler<BotRequest, BotResponse> = async (request) => {
-    await initConfig();
-    setToken(config.value.loanApiConfig.token);
+  await initConfig();
+  setToken(config.value.loanApiConfig.token);
 
-    if (!request.videoKey.myAnimeListId || !request.videoKey.dub || request.videoKey.episode === null) {
-        throw new Error('Invalid request: ' + JSON.stringify(request));
-    }
+  if (!request.videoKey.myAnimeListId || !request.videoKey.dub || request.videoKey.episode === null) {
+    throw new Error('Invalid request: ' + JSON.stringify(request));
+  }
 
-    return retry(async () => await process(request), 3, () => true);
+  return retry(async () => await process(request), 3, () => true);
 };

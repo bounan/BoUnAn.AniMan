@@ -1,41 +1,41 @@
-﻿import { Handler } from 'aws-lambda/handler';
+﻿import type { Handler } from 'aws-lambda/handler';
 
-import { DownloaderResultRequest } from '../../../../../third-party/common/ts/interfaces';
+import type { DownloaderResultRequest } from '../../../../../third-party/common/ts/interfaces';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { initConfig } from '../../config/config';
-import { VideoEntity } from '../../models/video-entity';
+import type { VideoEntity } from '../../models/video-entity';
 import { markVideoDownloaded, markVideoFailed } from './repository';
 import { sendVideoDownloadedNotification } from './sns-client';
 
 
 const markVideo = async (request: DownloaderResultRequest): Promise<VideoEntity> => {
-    if (request.messageId) {
-        console.log('Video downloaded.');
-        return markVideoDownloaded(request.videoKey, request.messageId);
-    } else {
-        console.warn('Video download failed.');
-        return markVideoFailed(request.videoKey);
-    }
+  if (request.messageId) {
+    console.log('Video downloaded.');
+    return markVideoDownloaded(request.videoKey, request.messageId);
+  } else {
+    console.warn('Video download failed.');
+    return markVideoFailed(request.videoKey);
+  }
 };
 
 const notify = async (request: DownloaderResultRequest, videoEntity: VideoEntity): Promise<void> => {
-    const notification = {
-        videoKey: request.videoKey,
-        messageId: request.messageId,
-        scenes: videoEntity.scenes,
-        publishingDetails: videoEntity.publishingDetails,
-    };
+  const notification = {
+    videoKey: request.videoKey,
+    messageId: request.messageId,
+    scenes: videoEntity.scenes,
+    publishingDetails: videoEntity.publishingDetails,
+  };
 
-    await sendVideoDownloadedNotification(notification);
-    console.log('Video downloaded notification sent.');
+  await sendVideoDownloadedNotification(notification);
+  console.log('Video downloaded notification sent.');
 };
 
 const process = async (request: DownloaderResultRequest): Promise<void> => {
-    const videoEntity = await markVideo(request);
-    await notify(request, videoEntity);
+  const videoEntity = await markVideo(request);
+  await notify(request, videoEntity);
 }
 
 export const handler: Handler<DownloaderResultRequest, void> = async (request) => {
-    await initConfig();
-    return retry(async () => await process(request), 3, () => true);
+  await initConfig();
+  return retry(async () => await process(request), 3, () => true);
 };

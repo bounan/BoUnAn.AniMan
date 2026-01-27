@@ -7,81 +7,81 @@ import { handler as updateVideoScenes } from './handlers/update-video-scenes/han
 import { handler as updateVideoStatus } from './handlers/update-video-status/handler';
 
 const main = async () => {
-    const myAnimeListId = 37105;
-    const dub = 'AniLibria.TV';
-    const episode = 2;
+  const myAnimeListId = 37105;
+  const dub = 'AniLibria.TV';
+  const episode = 2;
 
-    const s1 = await getAnime({
+  const s1 = await getAnime({
+    videoKey: {
+      myAnimeListId: myAnimeListId,
+      dub: dub,
+      episode: episode,
+    },
+  }, null as any, null as any);
+  console.log(s1);
+
+  const s2 = await getSeriesToMatch(null as any, null as any, null as any);
+  console.log(s2);
+
+  const s3 = await getVideoToDownload(null as any, null as any, null as any);
+  console.log(s3);
+
+  const s4 = await updateVideoScenes({
+    items: [
+      {
         videoKey: {
-            myAnimeListId: myAnimeListId,
-            dub: dub,
-            episode: episode,
+          myAnimeListId: myAnimeListId,
+          dub: dub,
+          episode: episode,
         },
-    }, null as any, null as any);
-    console.log(s1);
-
-    const s2 = await getSeriesToMatch(null as any, null as any, null as any);
-    console.log(s2);
-
-    const s3 = await getVideoToDownload(null as any, null as any, null as any);
-    console.log(s3);
-
-    const s4 = await updateVideoScenes({
-        items: [
-            {
-                videoKey: {
-                    myAnimeListId: myAnimeListId,
-                    dub: dub,
-                    episode: episode,
-                },
-                scenes: {
-                    opening: {
-                        start: 0,
-                        end: 10,
-                    },
-                    ending: {
-                        start: 0,
-                        end: 10,
-                    },
-                },
-            },
-            {
-                videoKey: {
-                    myAnimeListId: myAnimeListId,
-                    dub: dub,
-                    episode: episode + 1,
-                },
-                scenes: {},
-            },
-            {
-                videoKey: {
-                    myAnimeListId: myAnimeListId,
-                    dub: dub,
-                    episode: episode + 2,
-                },
-            },
-        ],
-    }, null as any, null as any);
-    console.log(s4);
-
-    const s5 = await updateVideoStatus({
+        scenes: {
+          opening: {
+            start: 0,
+            end: 10,
+          },
+          ending: {
+            start: 0,
+            end: 10,
+          },
+        },
+      },
+      {
         videoKey: {
-            myAnimeListId: myAnimeListId,
-            dub: dub,
-            episode: episode,
+          myAnimeListId: myAnimeListId,
+          dub: dub,
+          episode: episode + 1,
         },
-        messageId: 1,
-    }, null as any, null as any);
-    console.log(s5);
-
-    const s6 = await getAnime({
+        scenes: {},
+      },
+      {
         videoKey: {
-            myAnimeListId: myAnimeListId,
-            dub: dub,
-            episode: 7,
+          myAnimeListId: myAnimeListId,
+          dub: dub,
+          episode: episode + 2,
         },
-    }, null as any, null as any);
-    console.log(s6);
+      },
+    ],
+  }, null as any, null as any);
+  console.log(s4);
+
+  const s5 = await updateVideoStatus({
+    videoKey: {
+      myAnimeListId: myAnimeListId,
+      dub: dub,
+      episode: episode,
+    },
+    messageId: 1,
+  }, null as any, null as any);
+  console.log(s5);
+
+  const s6 = await getAnime({
+    videoKey: {
+      myAnimeListId: myAnimeListId,
+      dub: dub,
+      episode: 7,
+    },
+  }, null as any, null as any);
+  console.log(s6);
 
 }
 

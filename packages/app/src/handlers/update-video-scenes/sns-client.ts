@@ -1,23 +1,26 @@
 ﻿import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
-import { SceneRecognisedNotification, SceneRecognisedNotificationItem } from '../../../../../third-party/common/ts/interfaces';
+import type {
+  SceneRecognisedNotification,
+  SceneRecognisedNotificationItem,
+} from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
 
 export const sendSceneRecognizedNotification = async (items: SceneRecognisedNotificationItem[]): Promise<void> => {
-    const snsClient = new SNSClient();
+  const snsClient = new SNSClient();
 
-    const obj: SceneRecognisedNotification = { items: items };
+  const obj: SceneRecognisedNotification = { items: items };
 
-    const message = {
-        default: JSON.stringify(obj),
-    }
+  const message = {
+    default: JSON.stringify(obj),
+  }
 
-    const command = new PublishCommand({
-        TopicArn: config.value.topics.sceneRecognisedTopicArn,
-        Message: JSON.stringify(message),
-        MessageStructure: 'json',
-    });
+  const command = new PublishCommand({
+    TopicArn: config.value.topics.sceneRecognisedTopicArn,
+    Message: JSON.stringify(message),
+    MessageStructure: 'json',
+  });
 
-    await snsClient.send(command);
-    console.log('Notification sent: ' + JSON.stringify(message));
+  await snsClient.send(command);
+  console.log('Notification sent: ' + JSON.stringify(message));
 }

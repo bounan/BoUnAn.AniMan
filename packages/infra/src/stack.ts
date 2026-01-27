@@ -2,256 +2,257 @@
 import * as cw from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
+import type * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { LlrtFunction } from 'cdk-lambda-llrt';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 import { ExportNames } from '../../../third-party/common/ts/cdk/export-names';
-import { Config as RuntimeConfig } from '../../app/src/config/config';
-import { VideoEntity } from '../../app/src/models/video-entity';
-import { Config, getConfig } from './config';
+import type { Config as RuntimeConfig } from '../../app/src/config/config';
+import type { VideoEntity } from '../../app/src/models/video-entity';
+import type { Config } from './config';
+import { getConfig } from './config';
 
 const USE_MOCKS = false;
 
 export class AniManCdkStack extends cfn.Stack {
-    constructor(scope: Construct, id: string, props?: cfn.StackProps) {
-        super(scope, id, props);
+  constructor(scope: Construct, id: string, props?: cfn.StackProps) {
+    super(scope, id, props);
 
-        if (USE_MOCKS && !this.isStage) {
-            throw new Error('Mock handlers can only be used in eu-central-1');
-        }
-
-        const config = getConfig(this, '/bounan/animan/deploy-config');
-
-        const { table, indexes } = this.createFilesTable();
-        const topics = this.createSnsTopics();
-        const logGroup = this.createLogGroup();
-        const parameter = this.saveParameters(table, indexes, topics, config);
-        const functions = this.createLambdas(table, topics, logGroup, parameter);
-        this.setErrorAlarm(logGroup, config);
-
-        this.out('Config', config);
-        this.export({
-            AlertEmail: config.alertEmail,
-            LoanApiToken: config.loanApiToken,
-
-            VideoRegisteredSnsTopicArn: topics[RequiredTopic.VideoRegistered].topicArn,
-            VideoDownloadedSnsTopicArn: topics[RequiredTopic.VideoDownloaded].topicArn,
-            SceneRecognisedSnsTopicArn: topics[RequiredTopic.SceneRecognised].topicArn,
-
-            GetAnimeFunctionName: functions[LambdaHandler.GetAnime].functionName,
-            GetVideoToDownloadFunctionName: functions[LambdaHandler.GetVideoToDownload].functionName,
-            UpdateVideoStatusFunctionName: functions[LambdaHandler.UpdateVideoStatus].functionName,
-            GetSeriesToMatchFunctionName: functions[LambdaHandler.GetSeriesToMatch].functionName,
-            UpdateVideoScenesFunctionName: functions[LambdaHandler.UpdateVideoScenes].functionName,
-            UpdatePublishingDetailsFunctionName: functions[LambdaHandler.UpdatePublishingDetails].functionName,
-            RegisterVideosFunctionName: functions[LambdaHandler.RegisterVideos].functionName,
-        });
+    if (USE_MOCKS && !this.isStage) {
+      throw new Error('Mock handlers can only be used in eu-central-1');
     }
 
-    private get isStage(): boolean {
-        return this.region === 'eu-central-1';
-    }
+    const config = getConfig(this, '/bounan/animan/deploy-config');
 
-    private createFilesTable(): {
-        table: dynamodb.Table,
-        indexes: Record<RequiredIndex, dynamodb.GlobalSecondaryIndexProps>,
-        // eslint-disable-next-line indent
-    } {
-        const indexCapacities: Partial<dynamodb.TableProps> = {
-            billingMode: dynamodb.BillingMode.PROVISIONED,
-            readCapacity: 1,
-            writeCapacity: 1,
-        };
+    const { table, indexes } = this.createFilesTable();
+    const topics = this.createSnsTopics();
+    const logGroup = this.createLogGroup();
+    const parameter = this.saveParameters(table, indexes, topics, config);
+    const functions = this.createLambdas(table, topics, logGroup, parameter);
+    this.setErrorAlarm(logGroup, config);
 
-        const filesTable = new dynamodb.Table(this, 'videos', {
-            partitionKey: { name: 'primaryKey', type: dynamodb.AttributeType.STRING },
-            removalPolicy: cfn.RemovalPolicy.RETAIN,
-            deletionProtection: !this.isStage,
-            billingMode: dynamodb.BillingMode.PROVISIONED,
-            readCapacity: 3,
-            writeCapacity: 1,
-        });
+    this.out('Config', config);
+    this.export({
+      AlertEmail: config.alertEmail,
+      LoanApiToken: config.loanApiToken,
 
-        const animeKeySecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
-            indexName: RequiredIndex.VideoKey,
-            partitionKey: { name: 'animeKey', type: dynamodb.AttributeType.STRING },
-            sortKey: { name: 'episode', type: dynamodb.AttributeType.NUMBER },
-            projectionType: dynamodb.ProjectionType.INCLUDE,
-            nonKeyAttributes: ['myAnimeListId', 'dub', 'episode'] as (keyof VideoEntity)[],
-            ...indexCapacities,
-        };
+      VideoRegisteredSnsTopicArn: topics[RequiredTopic.VideoRegistered].topicArn,
+      VideoDownloadedSnsTopicArn: topics[RequiredTopic.VideoDownloaded].topicArn,
+      SceneRecognisedSnsTopicArn: topics[RequiredTopic.SceneRecognised].topicArn,
 
-        const dwnSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
-            indexName: RequiredIndex.DownloadStatusKey,
-            partitionKey: { name: 'status', type: dynamodb.AttributeType.NUMBER },
-            sortKey: { name: 'sortKey', type: dynamodb.AttributeType.STRING },
-            projectionType: dynamodb.ProjectionType.INCLUDE,
-            nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'] as (keyof VideoEntity)[],
-            ...indexCapacities,
-        };
+      GetAnimeFunctionName: functions[LambdaHandler.GetAnime].functionName,
+      GetVideoToDownloadFunctionName: functions[LambdaHandler.GetVideoToDownload].functionName,
+      UpdateVideoStatusFunctionName: functions[LambdaHandler.UpdateVideoStatus].functionName,
+      GetSeriesToMatchFunctionName: functions[LambdaHandler.GetSeriesToMatch].functionName,
+      UpdateVideoScenesFunctionName: functions[LambdaHandler.UpdateVideoScenes].functionName,
+      UpdatePublishingDetailsFunctionName: functions[LambdaHandler.UpdatePublishingDetails].functionName,
+      RegisterVideosFunctionName: functions[LambdaHandler.RegisterVideos].functionName,
+    });
+  }
 
-        const matcherSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
-            indexName: RequiredIndex.MatcherStatusKey,
-            partitionKey: { name: 'matchingStatus', type: dynamodb.AttributeType.NUMBER },
-            sortKey: { name: 'matchingGroup', type: dynamodb.AttributeType.STRING },
-            projectionType: dynamodb.ProjectionType.INCLUDE,
-            nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'] as (keyof VideoEntity)[],
-            ...indexCapacities,
-        };
+  private get isStage(): boolean {
+    return this.region === 'eu-central-1';
+  }
 
-        filesTable.addGlobalSecondaryIndex(animeKeySecondaryIndex);
-        filesTable.addGlobalSecondaryIndex(dwnSecondaryIndex);
-        filesTable.addGlobalSecondaryIndex(matcherSecondaryIndex);
+  private createFilesTable(): {
+    table: dynamodb.Table,
+    indexes: Record<RequiredIndex, dynamodb.GlobalSecondaryIndexProps>,
+    // eslint-disable-next-line indent
+  } {
+    const indexCapacities: Partial<dynamodb.TableProps> = {
+      billingMode: dynamodb.BillingMode.PROVISIONED,
+      readCapacity: 1,
+      writeCapacity: 1,
+    };
 
-        return {
-            table: filesTable,
-            indexes: {
-                [RequiredIndex.VideoKey]: animeKeySecondaryIndex,
-                [RequiredIndex.DownloadStatusKey]: dwnSecondaryIndex,
-                [RequiredIndex.MatcherStatusKey]: matcherSecondaryIndex,
-            },
-        };
-    }
+    const filesTable = new dynamodb.Table(this, 'videos', {
+      partitionKey: { name: 'primaryKey', type: dynamodb.AttributeType.STRING },
+      removalPolicy: cfn.RemovalPolicy.RETAIN,
+      deletionProtection: !this.isStage,
+      billingMode: dynamodb.BillingMode.PROVISIONED,
+      readCapacity: 3,
+      writeCapacity: 1,
+    });
 
-    private createSnsTopics(): Record<RequiredTopic, sns.Topic> {
-        return {
-            [RequiredTopic.VideoRegistered]: new sns.Topic(this, RequiredTopic.VideoRegistered),
-            [RequiredTopic.VideoDownloaded]: new sns.Topic(this, RequiredTopic.VideoDownloaded),
-            [RequiredTopic.SceneRecognised]: new sns.Topic(this, RequiredTopic.SceneRecognised),
-        };
-    }
+    const animeKeySecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
+      indexName: RequiredIndex.VideoKey,
+      partitionKey: { name: 'animeKey', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'episode', type: dynamodb.AttributeType.NUMBER },
+      projectionType: dynamodb.ProjectionType.INCLUDE,
+      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode'] as (keyof VideoEntity)[],
+      ...indexCapacities,
+    };
 
-    private createLogGroup(): logs.LogGroup {
-        return new logs.LogGroup(this, 'LogGroup', {
-            retention: logs.RetentionDays.ONE_WEEK,
-        });
-    }
+    const dwnSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
+      indexName: RequiredIndex.DownloadStatusKey,
+      partitionKey: { name: 'status', type: dynamodb.AttributeType.NUMBER },
+      sortKey: { name: 'sortKey', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.INCLUDE,
+      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'] as (keyof VideoEntity)[],
+      ...indexCapacities,
+    };
 
-    private setErrorAlarm(logGroup: logs.LogGroup, config: Config): void {
-        const topic = new sns.Topic(this, 'LogGroupAlarmSnsTopic');
-        topic.addSubscription(new subs.EmailSubscription(config.alertEmail));
+    const matcherSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
+      indexName: RequiredIndex.MatcherStatusKey,
+      partitionKey: { name: 'matchingStatus', type: dynamodb.AttributeType.NUMBER },
+      sortKey: { name: 'matchingGroup', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.INCLUDE,
+      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'] as (keyof VideoEntity)[],
+      ...indexCapacities,
+    };
 
-        const metricFilter = logGroup.addMetricFilter('ErrorMetricFilter', {
-            filterPattern: logs.FilterPattern.anyTerm('ERROR', 'Error', 'error', 'fail'),
-            metricNamespace: this.stackName,
-            metricName: 'ErrorCount',
-            metricValue: '1',
-        });
+    filesTable.addGlobalSecondaryIndex(animeKeySecondaryIndex);
+    filesTable.addGlobalSecondaryIndex(dwnSecondaryIndex);
+    filesTable.addGlobalSecondaryIndex(matcherSecondaryIndex);
 
-        const alarm = new cw.Alarm(this, 'LogGroupErrorAlarm', {
-            metric: metricFilter.metric(),
-            threshold: 1,
-            evaluationPeriods: 1,
-            treatMissingData: cw.TreatMissingData.NOT_BREACHING,
-        });
+    return {
+      table: filesTable,
+      indexes: {
+        [RequiredIndex.VideoKey]: animeKeySecondaryIndex,
+        [RequiredIndex.DownloadStatusKey]: dwnSecondaryIndex,
+        [RequiredIndex.MatcherStatusKey]: matcherSecondaryIndex,
+      },
+    };
+  }
 
-        alarm.addAlarmAction(new cloudwatchActions.SnsAction(topic));
-    }
+  private createSnsTopics(): Record<RequiredTopic, sns.Topic> {
+    return {
+      [RequiredTopic.VideoRegistered]: new sns.Topic(this, RequiredTopic.VideoRegistered),
+      [RequiredTopic.VideoDownloaded]: new sns.Topic(this, RequiredTopic.VideoDownloaded),
+      [RequiredTopic.SceneRecognised]: new sns.Topic(this, RequiredTopic.SceneRecognised),
+    };
+  }
 
-    private saveParameters(
-        filesTable: dynamodb.Table,
-        indexes: Record<RequiredIndex, dynamodb.GlobalSecondaryIndexProps>,
-        topics: Record<RequiredTopic, sns.Topic>,
-        config: Config,
-    ): ssm.IStringParameter {
-        const value = {
-            loanApiConfig: {
-                token: config.loanApiToken,
-                maxConcurrentRequests: 6,
-            },
-            database: {
-                tableName: filesTable.tableName,
-                animeKeyIndexName: indexes[RequiredIndex.VideoKey].indexName,
-                secondaryIndexName: indexes[RequiredIndex.DownloadStatusKey].indexName,
-                matcherSecondaryIndexName: indexes[RequiredIndex.MatcherStatusKey].indexName,
-            },
-            topics: {
-                videoRegisteredTopicArn: topics[RequiredTopic.VideoRegistered].topicArn,
-                videoDownloadedTopicArn: topics[RequiredTopic.VideoDownloaded].topicArn,
-                sceneRecognisedTopicArn: topics[RequiredTopic.SceneRecognised].topicArn,
-            },
-        } as Required<RuntimeConfig>;
+  private createLogGroup(): logs.LogGroup {
+    return new logs.LogGroup(this, 'LogGroup', {
+      retention: logs.RetentionDays.ONE_WEEK,
+    });
+  }
 
-        return new ssm.StringParameter(this, '/bounan/animan/runtime-config', {
-            parameterName: '/bounan/animan/runtime-config',
-            stringValue: JSON.stringify(value, null, 2),
-        });
-    }
+  private setErrorAlarm(logGroup: logs.LogGroup, config: Config): void {
+    const topic = new sns.Topic(this, 'LogGroupAlarmSnsTopic');
+    topic.addSubscription(new subs.EmailSubscription(config.alertEmail));
 
-    private createLambdas(
-        filesTable: dynamodb.Table,
-        topics: Record<RequiredTopic, sns.Topic>,
-        logGroup: logs.LogGroup,
-        parameter: ssm.IStringParameter,
-    ): Record<LambdaHandler, lambda.Function> {
-        // @ts-expect-error - we know that the keys are the same
-        const functions: Record<LambdaHandler, lambda.Function> = {};
+    const metricFilter = logGroup.addMetricFilter('ErrorMetricFilter', {
+      filterPattern: logs.FilterPattern.anyTerm('ERROR', 'Error', 'error', 'fail'),
+      metricNamespace: this.stackName,
+      metricName: 'ErrorCount',
+      metricValue: '1',
+    });
 
-        Object.entries(LambdaHandler).forEach(([lambdaName, handlerName]) => {
-            const entry = USE_MOCKS
-                ? `../app/src/handlers-mocks/${handlerName}.ts`
-                : `../app/src/handlers/${handlerName}/handler.ts`;
+    const alarm = new cw.Alarm(this, 'LogGroupErrorAlarm', {
+      metric: metricFilter.metric(),
+      threshold: 1,
+      evaluationPeriods: 1,
+      treatMissingData: cw.TreatMissingData.NOT_BREACHING,
+    });
 
-            const func = new LlrtFunction(this, lambdaName, {
-                entry,
-                handler: 'handler',
-                logGroup,
-                timeout: cfn.Duration.seconds(30),
-            });
+    alarm.addAlarmAction(new cloudwatchActions.SnsAction(topic));
+  }
 
-            filesTable.grantReadWriteData(func);
-            parameter.grantRead(func);
-            functions[handlerName as LambdaHandler] = func;
-        });
+  private saveParameters(
+    filesTable: dynamodb.Table,
+    indexes: Record<RequiredIndex, dynamodb.GlobalSecondaryIndexProps>,
+    topics: Record<RequiredTopic, sns.Topic>,
+    config: Config,
+  ): ssm.IStringParameter {
+    const value = {
+      loanApiConfig: {
+        token: config.loanApiToken,
+        maxConcurrentRequests: 6,
+      },
+      database: {
+        tableName: filesTable.tableName,
+        animeKeyIndexName: indexes[RequiredIndex.VideoKey].indexName,
+        secondaryIndexName: indexes[RequiredIndex.DownloadStatusKey].indexName,
+        matcherSecondaryIndexName: indexes[RequiredIndex.MatcherStatusKey].indexName,
+      },
+      topics: {
+        videoRegisteredTopicArn: topics[RequiredTopic.VideoRegistered].topicArn,
+        videoDownloadedTopicArn: topics[RequiredTopic.VideoDownloaded].topicArn,
+        sceneRecognisedTopicArn: topics[RequiredTopic.SceneRecognised].topicArn,
+      },
+    } as Required<RuntimeConfig>;
 
-        topics[RequiredTopic.VideoRegistered].grantPublish(functions[LambdaHandler.GetAnime]);
-        topics[RequiredTopic.VideoRegistered].grantPublish(functions[LambdaHandler.RegisterVideos]);
-        topics[RequiredTopic.VideoDownloaded].grantPublish(functions[LambdaHandler.UpdateVideoStatus]);
-        topics[RequiredTopic.SceneRecognised].grantPublish(functions[LambdaHandler.UpdateVideoStatus]);
-        topics[RequiredTopic.SceneRecognised].grantPublish(functions[LambdaHandler.UpdateVideoScenes]);
+    return new ssm.StringParameter(this, '/bounan/animan/runtime-config', {
+      parameterName: '/bounan/animan/runtime-config',
+      stringValue: JSON.stringify(value, null, 2),
+    });
+  }
 
-        return functions;
-    }
+  private createLambdas(
+    filesTable: dynamodb.Table,
+    topics: Record<RequiredTopic, sns.Topic>,
+    logGroup: logs.LogGroup,
+    parameter: ssm.IStringParameter,
+  ): Record<LambdaHandler, lambda.Function> {
+    // @ts-expect-error - we know that the keys are the same
+    const functions: Record<LambdaHandler, lambda.Function> = {};
 
-    private out(key: string, value: object | string): void {
-        const output = typeof value === 'string' ? value : JSON.stringify(value);
-        new cfn.CfnOutput(this, key, { value: output });
-    }
+    Object.entries(LambdaHandler).forEach(([lambdaName, handlerName]) => {
+      const entry = USE_MOCKS
+        ? `../app/src/handlers-mocks/${handlerName}.ts`
+        : `../app/src/handlers/${handlerName}/handler.ts`;
 
-    private export(exports: { [key in keyof typeof ExportNames]: string }): void {
-        Object.entries(ExportNames).forEach(([key, value]) => {
-            new cfn.CfnOutput(this, value, {
-                value: exports[key as keyof typeof ExportNames],
-                exportName: `bounan:${value}`,
-            });
-        });
-    }
+      const func = new LlrtFunction(this, lambdaName, {
+        entry,
+        handler: 'handler',
+        logGroup,
+        timeout: cfn.Duration.seconds(30),
+      });
+
+      filesTable.grantReadWriteData(func);
+      parameter.grantRead(func);
+      functions[handlerName as LambdaHandler] = func;
+    });
+
+    topics[RequiredTopic.VideoRegistered].grantPublish(functions[LambdaHandler.GetAnime]);
+    topics[RequiredTopic.VideoRegistered].grantPublish(functions[LambdaHandler.RegisterVideos]);
+    topics[RequiredTopic.VideoDownloaded].grantPublish(functions[LambdaHandler.UpdateVideoStatus]);
+    topics[RequiredTopic.SceneRecognised].grantPublish(functions[LambdaHandler.UpdateVideoStatus]);
+    topics[RequiredTopic.SceneRecognised].grantPublish(functions[LambdaHandler.UpdateVideoScenes]);
+
+    return functions;
+  }
+
+  private out(key: string, value: object | string): void {
+    const output = typeof value === 'string' ? value : JSON.stringify(value);
+    new cfn.CfnOutput(this, key, { value: output });
+  }
+
+  private export(exports: { [key in keyof typeof ExportNames]: string }): void {
+    Object.entries(ExportNames).forEach(([key, value]) => {
+      new cfn.CfnOutput(this, value, {
+        value: exports[key as keyof typeof ExportNames],
+        exportName: `bounan:${value}`,
+      });
+    });
+  }
 }
 
 // noinspection JSUnusedGlobalSymbols
 enum LambdaHandler {
-    GetAnime = 'get-anime',
-    GetVideoToDownload = 'get-video-to-download',
-    UpdateVideoStatus = 'update-video-status',
-    GetSeriesToMatch = 'get-series-to-match',
-    UpdateVideoScenes = 'update-video-scenes',
-    UpdatePublishingDetails = 'update-publishing-details',
-    RegisterVideos = 'register-videos',
+  GetAnime = 'get-anime',
+  GetVideoToDownload = 'get-video-to-download',
+  UpdateVideoStatus = 'update-video-status',
+  GetSeriesToMatch = 'get-series-to-match',
+  UpdateVideoScenes = 'update-video-scenes',
+  UpdatePublishingDetails = 'update-publishing-details',
+  RegisterVideos = 'register-videos',
 }
 
 enum RequiredTopic {
-    VideoRegistered = 'VideoRegisteredSnsTopic',
-    VideoDownloaded = 'VideoDownloadedSnsTopic',
-    SceneRecognised = 'SceneRecognisedSnsTopic',
+  VideoRegistered = 'VideoRegisteredSnsTopic',
+  VideoDownloaded = 'VideoDownloadedSnsTopic',
+  SceneRecognised = 'SceneRecognisedSnsTopic',
 }
 
 enum RequiredIndex {
-    VideoKey = 'AnimeKey-Episode-index_2',
-    DownloadStatusKey = 'Status-SortKey-index_2',
-    MatcherStatusKey = 'Matcher-CreatedAt-index_3',
+  VideoKey = 'AnimeKey-Episode-index_2',
+  DownloadStatusKey = 'Status-SortKey-index_2',
+  MatcherStatusKey = 'Matcher-CreatedAt-index_3',
 }

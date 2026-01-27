@@ -1,8 +1,8 @@
-﻿import { Handler } from 'aws-lambda/handler';
+﻿import type { Handler } from 'aws-lambda/handler';
 
-import { MatcherResponse } from '../../../../third-party/common/ts/interfaces';
+import type { MatcherResponse } from '../../../../third-party/common/ts/interfaces';
 
 
 export const handler: Handler<undefined, MatcherResponse> = async () => {
-    throw new Error('Not implemented');
+  throw new Error('Not implemented');
 };

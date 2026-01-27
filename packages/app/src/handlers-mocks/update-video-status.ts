@@ -1,9 +1,9 @@
-﻿import { Handler } from 'aws-lambda/handler';
+﻿import type { Handler } from 'aws-lambda/handler';
 
-import { DownloaderResultRequest } from '../../../../third-party/common/ts/interfaces';
+import type { DownloaderResultRequest } from '../../../../third-party/common/ts/interfaces';
 
 
 export const handler: Handler<DownloaderResultRequest, void> = async (request) => {
-    console.log(request);
-    throw new Error('Not implemented');
+  console.log(request);
+  throw new Error('Not implemented');
 };

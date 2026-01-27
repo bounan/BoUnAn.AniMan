@@ -1,21 +1,21 @@
 ﻿import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
-import { VideoDownloadedNotification } from '../../../../../third-party/common/ts/interfaces';
+import type { VideoDownloadedNotification } from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
 
 export const sendVideoDownloadedNotification = async (notification: VideoDownloadedNotification): Promise<void> => {
-    const snsClient = new SNSClient();
+  const snsClient = new SNSClient();
 
-    const message = {
-        default: JSON.stringify(notification),
-    }
+  const message = {
+    default: JSON.stringify(notification),
+  }
 
-    const command = new PublishCommand({
-        TopicArn: config.value.topics.videoDownloadedTopicArn,
-        Message: JSON.stringify(message),
-        MessageStructure: 'json',
-    });
+  const command = new PublishCommand({
+    TopicArn: config.value.topics.videoDownloadedTopicArn,
+    Message: JSON.stringify(message),
+    MessageStructure: 'json',
+  });
 
-    await snsClient.send(command);
-    console.log('Notification sent: ' + JSON.stringify(message));
+  await snsClient.send(command);
+  console.log('Notification sent: ' + JSON.stringify(message));
 }
