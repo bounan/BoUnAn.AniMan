@@ -1,0 +1,28 @@
+catalog:
+  '@aws-sdk/client-dynamodb': 3.975.0
+  '@aws-sdk/client-sns': 3.975.0
+  '@aws-sdk/client-ssm': 3.975.0
+  '@aws-sdk/lib-dynamodb': 3.975.0
+  '@eslint/js': 9.39.2
+  '@types/aws-lambda': 8.10.160
+  '@types/node': 25.0.10
+  aws-cdk-lib: 2.236.0
+  aws-lambda: 1.0.7
+  cdk-lambda-llrt: 0.1.4
+  constructs: 10.4.5
+  cross-env: 10.1.0
+  eslint: 9.39.2
+  eslint-plugin-simple-import-sort: 12.1.1
+  knip: 5.82.1
+  npm-check-updates: 19.3.2
+  tsx: 4.21.0
+  typescript: 5.9.3
+  typescript-eslint: 8.54.0
+
+# Use hoisted node linker for compatibility with LlrtFunction construct. This construct bundles
+# dependencies using docker, which does not work with host's symlinks.
+nodeLinker: hoisted
+
+onlyBuiltDependencies:
+  - aws-sdk
+  - esbuild
