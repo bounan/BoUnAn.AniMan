@@ -5,6 +5,8 @@
     "typecheck": "pnpm -r run typecheck",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
+    "licenses:scan": "pnpm licenses list --prod --json > thirdparty.json",
+    "licenses:generate": "pnpm run -w licenses:scan && jiti scripts/format-thirdparty.ts",
     "knip": "knip",
     "dependencies:check": "pnpm outdated --recursive --use-stderr",
     "dependencies:update": "pnpm update --recursive --latest",
@@ -12,7 +14,7 @@
     "cdk:diff": "pnpm -r --filter infra cdk:diff",
     "cdk:deploy": "pnpm -r --filter infra cdk:deploy",
     "all-commited": "git diff --exit-code && git diff --cached --exit-code",
-    "prerelease": "npm-run-all --parallel typecheck lint knip dependencies:check && pnpm run -w all-commited && echo 'All checks passed!'"
+    "prerelease": "npm-run-all --parallel typecheck lint knip dependencies:check licenses:generate && pnpm run -w all-commited && echo 'All checks passed!'"
   },
   "type": "module",
   "license": "BSD-3-Clause",
