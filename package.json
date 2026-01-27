@@ -1,17 +1,18 @@
 {
   "name": "bounan-animan",
-  "version": "1.0",
-  "description": "",
+  "private": true,
   "scripts": {
-    "run-local": "cross-env AWS_PROFILE=hra tsx packages/app/src/local-runner.ts",
-    "typecheck": "tsc",
+    "typecheck": "pnpm -r run typecheck",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
+    "knip": "knip",
     "dependencies:check": "pnpm outdated --recursive --use-stderr",
     "dependencies:update": "pnpm update --recursive --latest",
-    "knip": "knip",
-    "check-updates": "pnpm outdated --use-stderr",
-    "prerelease": "npm run check-updates && npm run knip && npm run lint && npm run typecheck"
+    "cdk:synth": "pnpm -r --filter infra cdk:synth",
+    "cdk:diff": "pnpm -r --filter infra cdk:diff",
+    "cdk:deploy": "pnpm -r --filter infra cdk:deploy",
+    "all-commited": "git diff --exit-code && git diff --cached --exit-code",
+    "prerelease": "npm-run-all --parallel typecheck lint knip dependencies:check && pnpm run -w all-commited && echo 'All checks passed!'"
   },
   "type": "module",
   "license": "BSD-3-Clause",
@@ -25,26 +26,14 @@
     "npm": "please-use-pnpm",
     "yarn": "please-use-pnpm"
   },
-  "packageManager": "pnpm@10.28.2",
+  "packageManager": "pnpm@10.28.1",
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "catalog:",
-    "@aws-sdk/client-sns": "catalog:",
-    "@aws-sdk/client-ssm": "catalog:",
-    "@aws-sdk/lib-dynamodb": "catalog:",
     "@eslint/js": "catalog:",
-    "@types/aws-lambda": "catalog:",
-    "@types/node": "catalog:",
-    "aws-cdk-lib": "catalog:",
-    "aws-lambda": "catalog:",
-    "cdk-lambda-llrt": "catalog:",
-    "constructs": "catalog:",
-    "cross-env": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-simple-import-sort": "catalog:",
+    "jiti": "catalog:",
     "knip": "catalog:",
-    "npm-check-updates": "catalog:",
-    "tsx": "catalog:",
-    "typescript": "catalog:",
+    "npm-run-all": "catalog:",
     "typescript-eslint": "catalog:"
   }
 }
