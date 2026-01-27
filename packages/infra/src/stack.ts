@@ -10,9 +10,9 @@ import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { LlrtFunction } from 'cdk-lambda-llrt';
 import { Construct } from 'constructs';
 
-import { ExportNames } from '../src/common/ts/cdk/export-names';
-import { Config as RuntimeConfig } from '../src/config/config';
-import { VideoEntity } from '../src/models/video-entity';
+import { ExportNames } from '../../../third-party/common/ts/cdk/export-names';
+import { Config as RuntimeConfig } from '../../app/src/config/config';
+import { VideoEntity } from '../../app/src/models/video-entity';
 import { Config, getConfig } from './config';
 
 const USE_MOCKS = false;
@@ -194,8 +194,8 @@ export class AniManCdkStack extends cfn.Stack {
 
         Object.entries(LambdaHandler).forEach(([lambdaName, handlerName]) => {
             const entry = USE_MOCKS
-                ? `src/handlers-mocks/${handlerName}.ts`
-                : `src/handlers/${handlerName}/handler.ts`;
+                ? `../app/src/handlers-mocks/${handlerName}.ts`
+                : `../app/src/handlers/${handlerName}/handler.ts`;
 
             const func = new LlrtFunction(this, lambdaName, {
                 entry,

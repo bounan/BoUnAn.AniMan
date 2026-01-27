@@ -1,7 +1,7 @@
 ﻿import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { BatchWriteCommand, DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
-import { VideoKey } from '../common/ts/interfaces';
+import { VideoKey } from '../../../../third-party/common/ts/interfaces';
 import { config } from '../config/config';
 import { MatchingStatusNum } from '../models/matching-status-num';
 import { VideoEntity } from '../models/video-entity';

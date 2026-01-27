@@ -1,6 +1,6 @@
 ﻿import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
-import { MatcherResultRequest, MatcherResultRequestItem, Scenes } from '../../common/ts/interfaces';
+import { MatcherResultRequest, MatcherResultRequestItem, Scenes } from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
 import { MatchingStatusNum } from '../../models/matching-status-num';
 import { VideoEntity } from '../../models/video-entity';

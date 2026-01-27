@@ -1,6 +1,6 @@
 ﻿import { BatchGetCommand } from '@aws-sdk/lib-dynamodb';
 
-import { VideoKey } from '../../common/ts/interfaces';
+import { VideoKey } from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
 import { docClient, getVideoKey } from '../../shared/repository';
 

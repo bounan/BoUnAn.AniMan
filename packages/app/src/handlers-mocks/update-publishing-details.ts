@@ -1,6 +1,6 @@
 ﻿import { Handler } from 'aws-lambda/handler';
 
-import { PublisherResultRequest } from '../common/ts/interfaces';
+import { PublisherResultRequest } from '../../../../third-party/common/ts/interfaces';
 
 
 export const handler: Handler<PublisherResultRequest, void> = async (request) => {

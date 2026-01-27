@@ -1,7 +1,7 @@
 ﻿import { Handler } from 'aws-lambda/handler';
 
-import { MatcherResponse } from '../../common/ts/interfaces';
-import { retry } from '../../common/ts/runtime/retry';
+import { MatcherResponse } from '../../../../../third-party/common/ts/interfaces';
+import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { initConfig } from '../../config/config';
 import { getEpisodesToMatch } from './repository';
 

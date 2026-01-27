@@ -1,6 +1,6 @@
 ﻿import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
-import { PublishingDetails, VideoKey } from '../../common/ts/interfaces';
+import { PublishingDetails, VideoKey } from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
 import { docClient, getVideoKey } from '../../shared/repository';
 

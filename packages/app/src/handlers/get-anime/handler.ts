@@ -1,9 +1,9 @@
 ﻿import { Handler } from 'aws-lambda/handler';
 
-import { BotRequest, BotResponse } from '../../common/ts/interfaces';
-import { retry } from '../../common/ts/runtime/retry';
+import { BotRequest, BotResponse } from '../../../../../third-party/common/ts/interfaces';
+import { retry } from '../../../../../third-party/common/ts/runtime/retry';
+import { getExistingVideos, setToken } from '../../../../../third-party/loan-api/src/loan-api-client';
 import { config, initConfig } from '../../config/config';
-import { getExistingVideos, setToken } from '../../loan-api/src/loan-api-client';
 import { VideoStatusNum } from '../../models/video-status-num';
 import { videoStatusToStr } from '../../shared/helpers/video-status-to-str';
 import { increasePriority, insertVideo } from '../../shared/repository';

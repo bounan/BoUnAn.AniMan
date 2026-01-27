@@ -1,6 +1,6 @@
 ﻿import { Handler } from 'aws-lambda/handler';
 
-import { DownloaderResponse } from '../common/ts/interfaces';
+import { DownloaderResponse } from '../../../../third-party/common/ts/interfaces';
 
 
 export const handler: Handler<undefined, DownloaderResponse> = async () => {

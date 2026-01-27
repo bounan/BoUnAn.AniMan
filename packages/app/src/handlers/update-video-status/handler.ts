@@ -1,7 +1,7 @@
 ﻿import { Handler } from 'aws-lambda/handler';
 
-import { DownloaderResultRequest } from '../../common/ts/interfaces';
-import { retry } from '../../common/ts/runtime/retry';
+import { DownloaderResultRequest } from '../../../../../third-party/common/ts/interfaces';
+import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { initConfig } from '../../config/config';
 import { VideoEntity } from '../../models/video-entity';
 import { markVideoDownloaded, markVideoFailed } from './repository';

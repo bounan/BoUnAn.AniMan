@@ -1,6 +1,6 @@
 ﻿import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
-import { VideoKey } from '../../common/ts/interfaces';
+import { VideoKey } from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
 import { VideoEntity } from '../../models/video-entity';
 import { VideoStatusNum } from '../../models/video-status-num';

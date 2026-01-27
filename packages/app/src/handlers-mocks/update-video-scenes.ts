@@ -1,6 +1,6 @@
 ﻿import { Handler } from 'aws-lambda/handler';
 
-import { MatcherResultRequest } from '../common/ts/interfaces';
+import { MatcherResultRequest } from '../../../../third-party/common/ts/interfaces';
 
 
 export const handler: Handler<MatcherResultRequest, void> = async (request) => {
