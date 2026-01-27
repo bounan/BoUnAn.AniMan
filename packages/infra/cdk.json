@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts aws-cdk/app.ts",
+  "app": "jiti src/app.ts",
   "context": {
     "acknowledged-issue-numbers": [
       34892
