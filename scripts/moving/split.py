@@ -1,4 +1,8 @@
 import json
+import os
+
+from cfg import FROM_FILE_PTH, FROM_FOLDER_PATH, TO_TABLE_NAME
+
 
 def split_jsonl_to_batches(input_file, batch_size=25, output_prefix="batch"):
     """
@@ -12,7 +16,8 @@ def split_jsonl_to_batches(input_file, batch_size=25, output_prefix="batch"):
     with open(input_file, "r", encoding="utf-8") as infile:
         batch = []
         for line in infile:
-            batch.append(json.loads(line)["Item"])
+            obj = json.loads(line)
+            batch.append(obj)
             if len(batch) == batch_size:
                 batches.append(batch)
                 batch = []
@@ -21,13 +26,25 @@ def split_jsonl_to_batches(input_file, batch_size=25, output_prefix="batch"):
         if batch:
             batches.append(batch)
 
-    # Save batches as separate JSON files
+    total = len(batches)
     for i, batch in enumerate(batches):
-        batch_file = f"chunks/{output_prefix}_{i+1}.json"
+        batch_file = f"chunks/{output_prefix}_{str(i+1).zfill(4)}_{total}.json"
         with open(batch_file, "w", encoding="utf-8") as outfile:
-            json.dump({"RequestItems": {"Bounan-AniMan-FilesTableXXXXXXXXXXXX": [{"PutRequest": {"Item": item}} for item in batch]}}, outfile, indent=4)
+            json.dump(
+                {
+                    "RequestItems": {
+                        TO_TABLE_NAME: [
+                            {"PutRequest": {"Item": item}} for item in batch
+                        ]
+                    }
+                },
+                outfile,
+                indent=4,
+            )
         print(f"Batch {i+1} saved as {batch_file}")
 
+
 if __name__ == "__main__":
-    input_file = "all.json"  # Replace with your actual file path
+    os.makedirs("chunks", exist_ok=False)
+    input_file = FROM_FOLDER_PATH + "\\" + FROM_FILE_PTH
     split_jsonl_to_batches(input_file)

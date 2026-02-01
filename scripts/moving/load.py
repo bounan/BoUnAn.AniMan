@@ -3,9 +3,10 @@ import json
 import time
 import os
 from botocore.exceptions import BotoCoreError, ClientError
+from cfg import AWS_PROFILE, TO_TABLE_NAME
 
 # Initialize DynamoDB client
-os.environ["AWS_PROFILE"] = "XXXXXXXX"  # Change to your actual AWS profile
+os.environ["AWS_PROFILE"] = AWS_PROFILE  # Change to your actual AWS profile
 dynamodb = boto3.client("dynamodb")
 
 def batch_write_to_dynamodb(table_name, batch_files, max_retries=5, backoff_factor=2):
@@ -54,10 +55,9 @@ def batch_write_to_dynamodb(table_name, batch_files, max_retries=5, backoff_fact
             print(f"Max retries reached for {batch_file}. Some items may not be written.")
 
 if __name__ == "__main__":
-    table_name = "Bounan-AniMan-FilesTableXXXXXXXXXXX"  # Change to your actual DynamoDB table name
     batch_files = ['chunks/' + f for f in os.listdir('chunks')]
 
     if not batch_files:
         print("No batch files found. Make sure you ran the split script first.")
     else:
-        batch_write_to_dynamodb(table_name, batch_files)
+        batch_write_to_dynamodb(TO_TABLE_NAME, batch_files)
