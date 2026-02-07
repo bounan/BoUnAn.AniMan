@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "catalog:",
+    "@aws-sdk/client-lambda": "catalog:",
     "@aws-sdk/client-sns": "catalog:",
     "@aws-sdk/client-ssm": "catalog:",
     "@aws-sdk/lib-dynamodb": "catalog:"

@@ -9,6 +9,7 @@
     "packages/app": {
       "entry": "src/handlers/*/handler.ts",
       "ignoreDependencies": [
+        "@aws-sdk/client-lambda",
         "@aws-sdk/client-ssm"
       ]
     },

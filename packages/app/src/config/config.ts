@@ -2,8 +2,7 @@
 
 
 interface LoanApiConfig {
-  token: string;
-  maxConcurrentRequests: number;
+  functionArn: string;
 }
 
 interface DatabaseConfig {

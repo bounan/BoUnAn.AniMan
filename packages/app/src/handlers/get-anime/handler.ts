@@ -2,37 +2,32 @@
 
 import type { BotRequest, BotResponse } from '../../../../../third-party/common/ts/interfaces';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
-import { getExistingVideos, setToken } from '../../../../../third-party/loan-api/src/loan-api-client';
-import { config, initConfig } from '../../config/config';
+import { getEpisodes } from '../../api-clients/loan-api-client';
+import { initConfig } from '../../config/config';
 import { VideoStatusNum } from '../../models/video-status-num';
 import { videoStatusToStr } from '../../shared/helpers/video-status-to-str';
 import { increasePriority, insertVideo } from '../../shared/repository';
 import { getAnimeForUser, getRegisteredEpisodes } from './repository';
 import { sendVideoRegisteredNotification } from './sns-client';
 
-const addAnime = async (request: BotRequest): Promise<VideoStatusNum> => {
-  const videoKey = request.videoKey;
-
-  const videoInfos = await getExistingVideos(videoKey.myAnimeListId, videoKey.dub);
-  console.log('Video fetched from LoanAPI: ' + JSON.stringify(videoInfos));
-
-  const dubEpisodes = videoInfos.filter(x => x.myAnimeListId === videoKey.myAnimeListId && x.dub === videoKey.dub);
-
-  const requestedVideo = dubEpisodes.find(x => x.episode === videoKey.episode);
-  if (!requestedVideo) {
-    console.warn('Video not available: ' + JSON.stringify(request));
+const addAnime = async ({ videoKey }: BotRequest): Promise<VideoStatusNum> => {
+  const dubEpisodes = await getEpisodes(videoKey.myAnimeListId, videoKey.dub);
+  if (dubEpisodes.length === 0) {
+    console.warn('Video not available: ' + JSON.stringify(videoKey));
     return VideoStatusNum.NotAvailable;
   }
 
   const registeredEpisodes = await getRegisteredEpisodes(videoKey.myAnimeListId, videoKey.dub);
-  const videosToRegister = dubEpisodes.filter(n => !registeredEpisodes.includes(n.episode));
+  const episodesToRegister = dubEpisodes.filter(episode => !registeredEpisodes.includes(episode));
+
+  const videosToRegister = episodesToRegister.map(episode => ({ ...videoKey, episode }));
   console.log('Videos to register: ' + JSON.stringify(videosToRegister));
 
   await insertVideo(videosToRegister);
   console.log('Video added to database');
 
-  await increasePriority(request.videoKey);
-  console.log('Priority increased for requested video: ' + JSON.stringify(requestedVideo));
+  await increasePriority(videoKey);
+  console.log('Priority increased for requested video');
 
   await sendVideoRegisteredNotification(videosToRegister);
   console.log('Video registered notification sent: ' + JSON.stringify(videosToRegister));
@@ -87,7 +82,6 @@ const process = async (request: BotRequest): Promise<BotResponse> => {
 
 export const handler: Handler<BotRequest, BotResponse> = async (request) => {
   await initConfig();
-  setToken(config.value.loanApiConfig.token);
 
   if (!request.videoKey.myAnimeListId || !request.videoKey.dub || request.videoKey.episode === null) {
     throw new Error('Invalid request: ' + JSON.stringify(request));

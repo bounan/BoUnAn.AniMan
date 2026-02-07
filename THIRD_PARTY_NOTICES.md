@@ -3,6 +3,10 @@
 This project includes software developed by third parties.
 The following licenses and notices apply.
 
+## @aws-crypto/crc32 undefined
+License: Apache-2.0
+https://github.com/aws/aws-sdk-js-crypto-helpers/tree/master/packages/crc32
+
 ## @aws-crypto/sha256-browser undefined
 License: Apache-2.0
 https://github.com/aws/aws-sdk-js-crypto-helpers/tree/master/packages/sha256-browser
@@ -22,6 +26,10 @@ https://github.com/aws/aws-sdk-js-crypto-helpers/tree/master/packages/util
 ## @aws-sdk/client-dynamodb undefined
 License: Apache-2.0
 https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-dynamodb
+
+## @aws-sdk/client-lambda undefined
+License: Apache-2.0
+https://github.com/aws/aws-sdk-js-v3/tree/main/clients/client-lambda
 
 ## @aws-sdk/client-sns undefined
 License: Apache-2.0
@@ -162,6 +170,26 @@ https://github.com/smithy-lang/smithy-typescript/tree/main/packages/core
 ## @smithy/credential-provider-imds undefined
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/credential-provider-imds
+
+## @smithy/eventstream-codec undefined
+License: Apache-2.0
+https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-codec
+
+## @smithy/eventstream-serde-browser undefined
+License: Apache-2.0
+https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-serde-browser
+
+## @smithy/eventstream-serde-config-resolver undefined
+License: Apache-2.0
+https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-serde-config-resolver
+
+## @smithy/eventstream-serde-node undefined
+License: Apache-2.0
+https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-serde-node
+
+## @smithy/eventstream-serde-universal undefined
+License: Apache-2.0
+https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-serde-universal
 
 ## @smithy/fetch-http-handler undefined
 License: Apache-2.0

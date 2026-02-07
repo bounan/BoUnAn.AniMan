@@ -2,7 +2,7 @@
 import * as cw from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import type * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
@@ -28,11 +28,17 @@ export class AniManCdkStack extends cfn.Stack {
 
     const config = getConfig(this, '/bounan/animan/deploy-config');
 
+    const loanApiFunction = lambda.Function.fromFunctionAttributes(
+      this, 'LoanApiFunction', {
+        functionArn: config.loanApiFunctionArn,
+        skipPermissions: true,
+      });
+
     const { table, indexes } = this.createFilesTable();
     const topics = this.createSnsTopics();
     const logGroup = this.createLogGroup();
     const parameter = this.saveParameters(table, indexes, topics, config);
-    const functions = this.createLambdas(table, topics, logGroup, parameter);
+    const functions = this.createLambdas(table, topics, logGroup, parameter, loanApiFunction);
     this.setErrorAlarm(logGroup, config);
 
     this.out('Config', config);
@@ -162,8 +168,7 @@ export class AniManCdkStack extends cfn.Stack {
   ): ssm.IStringParameter {
     const value = {
       loanApiConfig: {
-        token: config.loanApiToken,
-        maxConcurrentRequests: 6,
+        functionArn: config.loanApiFunctionArn,
       },
       database: {
         tableName: filesTable.tableName,
@@ -189,6 +194,7 @@ export class AniManCdkStack extends cfn.Stack {
     topics: Record<RequiredTopic, sns.Topic>,
     logGroup: logs.LogGroup,
     parameter: ssm.IStringParameter,
+    loanApiFunction: lambda.IFunction,
   ): Record<LambdaHandler, lambda.Function> {
     // @ts-expect-error - we know that the keys are the same
     const functions: Record<LambdaHandler, lambda.Function> = {};
@@ -207,6 +213,7 @@ export class AniManCdkStack extends cfn.Stack {
 
       filesTable.grantReadWriteData(func);
       parameter.grantRead(func);
+      loanApiFunction.grantInvoke(func);
       functions[handlerName as LambdaHandler] = func;
     });
 

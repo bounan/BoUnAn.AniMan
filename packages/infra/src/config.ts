@@ -6,6 +6,7 @@ import configFile from './configuration.json';
 export interface Config {
   alertEmail: string;
   loanApiToken: string;
+  loanApiFunctionArn: string;
 }
 
 const getValue = (stack: Stack, prefix: string, key: keyof Config): string => {
@@ -15,4 +16,5 @@ const getValue = (stack: Stack, prefix: string, key: keyof Config): string => {
 export const getConfig = (stack: Stack, prefix: string): Config => ({
   alertEmail: getValue(stack, prefix, 'alertEmail'),
   loanApiToken: getValue(stack, prefix, 'loanApiToken'),
+  loanApiFunctionArn: getValue(stack, prefix, 'loanApiFunctionArn'),
 });
