@@ -44,7 +44,7 @@ export class AniManCdkStack extends cfn.Stack {
     this.out('Config', config);
     this.export({
       AlertEmail: config.alertEmail,
-      LoanApiToken: config.loanApiToken,
+      LoanApiFunctionArn: loanApiFunction.functionArn,
 
       VideoRegisteredSnsTopicArn: topics[RequiredTopic.VideoRegistered].topicArn,
       VideoDownloadedSnsTopicArn: topics[RequiredTopic.VideoDownloaded].topicArn,
