@@ -33,7 +33,7 @@ jobs:
 
   diff:
     name: Release
-    environment: prod
+    environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 2
     needs: code-quality
