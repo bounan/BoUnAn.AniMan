@@ -15,15 +15,16 @@ jobs:
     timeout-minutes: 2
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
         with:
           submodules: 'true'
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6.3.0
+        with:
+          node-version: 22
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -31,8 +32,8 @@ jobs:
       - name: Perform prerelease checks
         run: pnpm run prerelease
 
-  diff:
-    name: Release
+  deploy:
+    name: Deploy
     environment: production
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -43,7 +44,7 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
         with:
           submodules: 'true'
 
@@ -55,17 +56,16 @@ jobs:
           tag_prefix: ""
           default_bump: patch
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 20
-
       - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6.3.0
+        with:
+          node-version: 22
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --filter infra...
 
-      - name: Print GitHub OIDC subject
-        run: echo $ACTIONS_ID_TOKEN_REQUEST_TOKEN
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
