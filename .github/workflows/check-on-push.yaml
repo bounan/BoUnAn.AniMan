@@ -18,7 +18,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'true'
-          token: ${{ secrets.LOAN_API_PAT_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -45,7 +44,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'true'
-          token: ${{ secrets.LOAN_API_PAT_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
