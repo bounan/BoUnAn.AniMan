@@ -6,9 +6,9 @@
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "knip": "knip",
-    "test": "vitest run --coverage",
-    "test:watch": "vitest --watch",
-    "test:ui": "vitest --ui --project unit-tests",
+    "test": "pnpm --filter app run test:unit",
+    "test:watch": "pnpm --filter app exec vitest --config vitest.config.ts --watch",
+    "test:ui": "pnpm --filter app exec vitest --config vitest.config.ts --ui",
     "dependencies:check": "pnpm outdated --recursive --use-stderr",
     "dependencies:update": "pnpm update --recursive --latest",
     "licenses:scan": "pnpm licenses list --prod --json > thirdparty.json",
@@ -17,7 +17,7 @@
     "cdk:diff": "pnpm -r --filter infra cdk:diff",
     "cdk:deploy": "pnpm -r --filter infra cdk:deploy",
     "all-commited": "git diff --exit-code && git diff --cached --exit-code",
-    "prerelease": "npm-run-all --parallel typecheck lint knip licenses:generate && pnpm run -w all-commited && echo 'All checks passed!'"
+    "prerelease": "npm-run-all --parallel typecheck lint knip licenses:generate test && pnpm run -w all-commited && echo 'All checks passed!'"
   },
   "type": "module",
   "license": "BSD-3-Clause",
