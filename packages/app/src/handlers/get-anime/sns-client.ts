@@ -1,25 +1,11 @@
-﻿import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
-
-import type { VideoKey, VideoRegisteredNotification } from '../../../../../third-party/common/ts/interfaces';
+﻿import type { VideoKey, VideoRegisteredNotification } from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
+import { publishJsonMessage } from '../../shared/sns-publisher';
 
 export const sendVideoRegisteredNotification = async (items: VideoKey[]): Promise<void> => {
-  const snsClient = new SNSClient();
-
   const obj: VideoRegisteredNotification = {
     items: items.map(item => ({ videoKey: item })),
-  }
+  };
 
-  const message = {
-    default: JSON.stringify(obj),
-  }
-
-  const command = new PublishCommand({
-    TopicArn: config.value.topics.videoRegisteredTopicArn,
-    Message: JSON.stringify(message),
-    MessageStructure: 'json',
-  });
-
-  await snsClient.send(command);
-  console.log('Notification sent: ' + JSON.stringify(command));
-}
+  await publishJsonMessage<VideoRegisteredNotification>(config.value.topics.videoRegisteredTopicArn, obj);
+};
