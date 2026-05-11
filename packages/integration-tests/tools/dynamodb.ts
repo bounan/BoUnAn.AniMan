@@ -83,7 +83,7 @@ export class DynamoDbTableFixture {
           ],
           Projection: {
             ProjectionType: 'INCLUDE',
-            NonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'],
+            NonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'performedAttempts'],
           },
         },
         {

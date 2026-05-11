@@ -16,6 +16,7 @@ export interface VideoEntity {
 
   createdAt: string;
   updatedAt: string;
+  performedAttempts?: number;
 
   messageId?: number;
   scenes?: {

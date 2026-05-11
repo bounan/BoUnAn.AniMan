@@ -98,7 +98,7 @@ export class AniManCdkStack extends cfn.Stack {
       partitionKey: { name: 'status', type: dynamodb.AttributeType.NUMBER },
       sortKey: { name: 'sortKey', type: dynamodb.AttributeType.STRING },
       projectionType: dynamodb.ProjectionType.INCLUDE,
-      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'] as (keyof VideoEntity)[],
+      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'performedAttempts'] as (keyof VideoEntity)[],
       ...indexCapacities,
     };
 
@@ -180,6 +180,10 @@ export class AniManCdkStack extends cfn.Stack {
         videoRegisteredTopicArn: topics[RequiredTopic.VideoRegistered].topicArn,
         videoDownloadedTopicArn: topics[RequiredTopic.VideoDownloaded].topicArn,
         sceneRecognisedTopicArn: topics[RequiredTopic.SceneRecognised].topicArn,
+      },
+      downloadRetry: {
+        maxAttempts: config.maxDownloadFailedAttempts,
+        retryDelayMs: config.downloadRetryDelayMs,
       },
     } as Required<RuntimeConfig>;
 

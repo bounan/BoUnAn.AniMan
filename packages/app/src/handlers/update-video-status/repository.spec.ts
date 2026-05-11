@@ -61,5 +61,14 @@ describe('packages/app/src/handlers/update-video-status/repository.ts', () => {
     };
     expect(downloadedUpdate.UpdateExpression).toContain('REMOVE #sortKey');
     expect(downloadedUpdate.ExpressionAttributeNames['#sortKey']).toBe('sortKey');
+
+    const failedUpdate = updateInput[1] as {
+      UpdateExpression: string;
+      ExpressionAttributeNames: Record<string, string>;
+      ExpressionAttributeValues: Record<string, number | null | string>;
+    };
+    expect(failedUpdate.UpdateExpression).toContain('#performedAttempts = #performedAttempts + :attemptIncrement');
+    expect(failedUpdate.ExpressionAttributeNames['#performedAttempts']).toBe('performedAttempts');
+    expect(failedUpdate.ExpressionAttributeValues[':attemptIncrement']).toBe(1);
   });
 });

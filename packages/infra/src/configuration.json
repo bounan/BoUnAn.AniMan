@@ -1,4 +1,6 @@
 ﻿{
   "alertEmail": "",
-  "loanApiFunctionArn": ""
+  "loanApiFunctionArn": "",
+  "maxDownloadFailedAttempts": 5,
+  "downloadRetryDelayMs": 3600000
 }

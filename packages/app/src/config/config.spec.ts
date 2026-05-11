@@ -35,6 +35,10 @@ describe('packages/app/src/config/config.ts', () => {
         videoDownloadedTopicArn: 'arn:downloaded',
         sceneRecognisedTopicArn: 'arn:scene',
       },
+      downloadRetry: {
+        maxAttempts: 5,
+        retryDelayMs: 60 * 60 * 1000,
+      },
     };
     fetchSsmValueMock.mockResolvedValue(value);
 

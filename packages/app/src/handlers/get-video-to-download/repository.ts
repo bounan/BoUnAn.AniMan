@@ -7,23 +7,35 @@ import { docClient } from '../../shared/repository';
 
 type GetEpisodeToDownloadResult = Pick<VideoEntity, 'myAnimeListId' | 'dub' | 'episode'>;
 
+const getRetryThreshold = (): string => {
+  return new Date(Date.now() - config.value.downloadRetry.retryDelayMs).toISOString();
+};
+
 // Get first video to download and set its status to Downloading.
 export const getEpisodeToDownloadAndLock = async (): Promise<GetEpisodeToDownloadResult | undefined> => {
+  const retryThreshold = getRetryThreshold();
+
   const pendingVideosResponse = await docClient.send(new ScanCommand({
     TableName: config.value.database.tableName,
     IndexName: config.value.database.secondaryIndexName,
     Limit: 10, // Scan a few items to reduce chance of empty result
-    FilterExpression: '#S = :pending',
+    FilterExpression: '#S = :pending OR (#S = :failed AND #performedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
     ExpressionAttributeNames: {
       '#S': 'status',
+      '#performedAttempts': 'performedAttempts',
+      '#updatedAt': 'updatedAt',
     },
     ExpressionAttributeValues: {
       ':pending': VideoStatusNum.Pending,
+      ':failed': VideoStatusNum.Failed,
+      ':maxAttempts': config.value.downloadRetry.maxAttempts,
+      ':retryThreshold': retryThreshold,
     },
     Select: 'ALL_PROJECTED_ATTRIBUTES',
   }));
 
-  const video = pendingVideosResponse.Items?.[0] as Pick<VideoEntity, 'primaryKey' | 'updatedAt' | 'myAnimeListId' | 'dub' | 'episode'> | undefined;
+  const video = pendingVideosResponse.Items?.[0] as
+    Pick<VideoEntity, 'primaryKey' | 'updatedAt' | 'myAnimeListId' | 'dub' | 'episode'> | undefined;
   if (!video) {
     return undefined;
   }
@@ -32,12 +44,16 @@ export const getEpisodeToDownloadAndLock = async (): Promise<GetEpisodeToDownloa
     TableName: config.value.database.tableName,
     Key: { primaryKey: video.primaryKey },
     UpdateExpression: 'SET #S = :downloading, updatedAt = :now',
-    ConditionExpression: '#S = :pending AND updatedAt = :oldUpdatedAt',
+    ConditionExpression: 'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #performedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
     ExpressionAttributeNames: {
       '#S': 'status',
+      '#performedAttempts': 'performedAttempts',
     },
     ExpressionAttributeValues: {
       ':pending': VideoStatusNum.Pending,
+      ':failed': VideoStatusNum.Failed,
+      ':maxAttempts': config.value.downloadRetry.maxAttempts,
+      ':retryThreshold': retryThreshold,
       ':downloading': VideoStatusNum.Downloading,
       ':oldUpdatedAt': video.updatedAt,
       ':now': new Date().toISOString(),

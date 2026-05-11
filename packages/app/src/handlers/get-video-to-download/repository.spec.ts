@@ -65,6 +65,10 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
           tableName: 'videos',
           secondaryIndexName: 'status-index',
         },
+        downloadRetry: {
+          maxAttempts: 5,
+          retryDelayMs: 60 * 60 * 1000,
+        },
       }),
     });
 
@@ -76,6 +80,69 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
     });
 
     expect(scanInput).toHaveLength(1);
+    expect(updateInput).toHaveLength(1);
+
+    const scanCommand = scanInput[0] as {
+      FilterExpression: string;
+      ExpressionAttributeNames: Record<string, string>;
+      ExpressionAttributeValues: Record<string, number | string>;
+    };
+    expect(scanCommand.FilterExpression).toBe('#S = :pending OR (#S = :failed AND #performedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)');
+    expect(scanCommand.ExpressionAttributeNames['#performedAttempts']).toBe('performedAttempts');
+    expect(scanCommand.ExpressionAttributeNames['#updatedAt']).toBe('updatedAt');
+    expect(scanCommand.ExpressionAttributeValues[':pending']).toBe(1);
+    expect(scanCommand.ExpressionAttributeValues[':failed']).toBe(4);
+    expect(scanCommand.ExpressionAttributeValues[':maxAttempts']).toBe(5);
+    expect(typeof scanCommand.ExpressionAttributeValues[':retryThreshold']).toBe('string');
+
+    const updateCommand = updateInput[0] as {
+      ConditionExpression: string;
+      ExpressionAttributeNames: Record<string, string>;
+      ExpressionAttributeValues: Record<string, number | string>;
+    };
+    expect(updateCommand.ConditionExpression)
+      .toBe('updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #performedAttempts < :maxAttempts AND updatedAt < :retryThreshold))');
+    expect(updateCommand.ExpressionAttributeNames['#performedAttempts']).toBe('performedAttempts');
+    expect(updateCommand.ExpressionAttributeValues[':failed']).toBe(4);
+    expect(updateCommand.ExpressionAttributeValues[':maxAttempts']).toBe(5);
+  });
+
+  it('locks retryable failed videos after the cooldown window', async () => {
+    sendMock
+      .mockResolvedValueOnce({
+        Items: [{
+          primaryKey: '1#Dub#6',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+          myAnimeListId: 1,
+          dub: 'Dub',
+          episode: 6,
+          performedAttempts: 2,
+        }],
+      })
+      .mockResolvedValueOnce({});
+
+    const configModule = await import('../../config/config');
+    Object.defineProperty(configModule.config, 'value', {
+      configurable: true,
+      get: () => ({
+        database: {
+          tableName: 'videos',
+          secondaryIndexName: 'status-index',
+        },
+        downloadRetry: {
+          maxAttempts: 5,
+          retryDelayMs: 60 * 60 * 1000,
+        },
+      }),
+    });
+
+    const module = await import('./repository');
+    await expect(module.getEpisodeToDownloadAndLock()).resolves.toEqual({
+      myAnimeListId: 1,
+      dub: 'Dub',
+      episode: 6,
+    });
+
     expect(updateInput).toHaveLength(1);
   });
 
@@ -89,6 +156,10 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
         database: {
           tableName: 'videos',
           secondaryIndexName: 'status-index',
+        },
+        downloadRetry: {
+          maxAttempts: 5,
+          retryDelayMs: 60 * 60 * 1000,
         },
       }),
     });

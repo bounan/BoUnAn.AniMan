@@ -47,6 +47,10 @@ export const it = baseTest
         videoDownloadedTopicArn: `video-downloaded-${task.id}`,
         sceneRecognisedTopicArn: `scene-recognised-${task.id}`,
       },
+      downloadRetry: {
+        maxAttempts: 5,
+        retryDelayMs: 60 * 60 * 1000,
+      },
     } satisfies Config;
   })
   .extend('ssmConfig', { scope: 'test', auto: true }, async ({ aws, config }) => {

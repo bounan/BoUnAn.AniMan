@@ -18,10 +18,16 @@ interface Topics {
   sceneRecognisedTopicArn: string;
 }
 
+interface DownloadRetryConfig {
+  maxAttempts: number;
+  retryDelayMs: number;
+}
+
 export interface Config {
   loanApiConfig: LoanApiConfig;
   database: DatabaseConfig;
   topics: Topics;
+  downloadRetry: DownloadRetryConfig;
 }
 
 let cachedConfig: Config | undefined;

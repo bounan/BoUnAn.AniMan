@@ -49,7 +49,20 @@ const buildSuccessCleanupUpdate = (request: VideoKey, messageId: number): Update
 };
 
 const buildRetryFailureUpdate = (request: VideoKey): UpdateCommand => {
-  return new UpdateCommand(buildMarkVideoBaseInput(request, VideoStatusNum.Failed, null));
+  const baseInput = buildMarkVideoBaseInput(request, VideoStatusNum.Failed, null);
+
+  return new UpdateCommand({
+    ...baseInput,
+    UpdateExpression: `${baseInput.UpdateExpression}, #performedAttempts = #performedAttempts + :attemptIncrement`,
+    ExpressionAttributeNames: {
+      ...baseInput.ExpressionAttributeNames,
+      '#performedAttempts': 'performedAttempts',
+    },
+    ExpressionAttributeValues: {
+      ...baseInput.ExpressionAttributeValues,
+      ':attemptIncrement': 1,
+    },
+  });
 };
 
 const executeMarkVideoUpdate = async (command: UpdateCommand): Promise<VideoEntity> => {
