@@ -1,8 +1,8 @@
 ﻿import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
 import type { PublishingDetails, VideoKey } from '../../../../../third-party/common/ts/interfaces';
+import { createLogger } from '../../../../../third-party/common/ts/runtime/logger';
 import { config } from '../../config/config';
-import { createLogger } from '../../shared/logger';
 import { docClient, getVideoKey } from '../../shared/repository';
 
 const logger = createLogger('handlers/update-publishing-details/repository');

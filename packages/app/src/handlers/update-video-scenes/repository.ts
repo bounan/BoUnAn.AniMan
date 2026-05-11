@@ -5,10 +5,10 @@ import type {
   MatcherResultRequestItem,
   Scenes,
 } from '../../../../../third-party/common/ts/interfaces';
+import { createLogger } from '../../../../../third-party/common/ts/runtime/logger';
 import { config } from '../../config/config';
 import { MatchingStatusNum } from '../../models/matching-status-num';
 import type { VideoEntity } from '../../models/video-entity';
-import { createLogger } from '../../shared/logger';
 import { docClient, getVideoKey } from '../../shared/repository';
 
 const logger = createLogger('handlers/update-video-scenes/repository');

@@ -1,12 +1,12 @@
 ﻿import type { Handler } from 'aws-lambda/handler';
 
 import type { BotRequest, BotResponse } from '../../../../../third-party/common/ts/interfaces';
+import { createLogger } from '../../../../../third-party/common/ts/runtime/logger';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { getEpisodes } from '../../api-clients/loan-api-client';
 import { initConfig } from '../../config/config';
 import { VideoStatusNum } from '../../models/video-status-num';
 import { videoStatusToStr } from '../../shared/helpers/video-status-to-str';
-import { createLogger } from '../../shared/logger';
 import { increasePriority, insertVideo } from '../../shared/repository';
 import { getAnimeForUser, getRegisteredEpisodes } from './repository';
 import { sendVideoRegisteredNotification } from './sns-client';

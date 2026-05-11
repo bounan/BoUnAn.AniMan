@@ -1,11 +1,11 @@
 ﻿/* eslint @typescript-eslint/no-explicit-any: 0 */
 
+import { createLogger } from '../../../third-party/common/ts/runtime/logger';
 import { handler as getAnime } from './handlers/get-anime/handler';
 import { handler as getSeriesToMatch } from './handlers/get-series-to-match/handler';
 import { handler as getVideoToDownload } from './handlers/get-video-to-download/handler';
 import { handler as updateVideoScenes } from './handlers/update-video-scenes/handler';
 import { handler as updateVideoStatus } from './handlers/update-video-status/handler';
-import { createLogger } from './shared/logger';
 
 const logger = createLogger('local-runner');
 

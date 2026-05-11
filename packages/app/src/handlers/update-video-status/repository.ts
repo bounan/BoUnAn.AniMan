@@ -1,10 +1,10 @@
 ﻿import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
 import type { VideoKey } from '../../../../../third-party/common/ts/interfaces';
+import { createLogger } from '../../../../../third-party/common/ts/runtime/logger';
 import { config } from '../../config/config';
 import type { VideoEntity } from '../../models/video-entity';
 import { VideoStatusNum } from '../../models/video-status-num';
-import { createLogger } from '../../shared/logger';
 import { docClient, getVideoKey } from '../../shared/repository';
 
 const logger = createLogger('handlers/update-video-status/repository');

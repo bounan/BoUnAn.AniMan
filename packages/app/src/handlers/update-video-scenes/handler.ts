@@ -1,9 +1,9 @@
 ﻿import type { Handler } from 'aws-lambda/handler';
 
 import type { MatcherResultRequest } from '../../../../../third-party/common/ts/interfaces';
+import { createLogger } from '../../../../../third-party/common/ts/runtime/logger';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { initConfig } from '../../config/config';
-import { createLogger } from '../../shared/logger';
 import { updateVideoScenes } from './repository';
 import { sendSceneRecognizedNotification } from './sns-client';
 

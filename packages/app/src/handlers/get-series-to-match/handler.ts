@@ -1,9 +1,9 @@
 ﻿import type { Handler } from 'aws-lambda/handler';
 
 import type { MatcherResponse } from '../../../../../third-party/common/ts/interfaces';
+import { createLogger } from '../../../../../third-party/common/ts/runtime/logger';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { initConfig } from '../../config/config';
-import { createLogger } from '../../shared/logger';
 import { getEpisodesToMatch } from './repository';
 
 const logger = createLogger('handlers/get-series-to-match');

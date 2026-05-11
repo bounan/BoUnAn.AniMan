@@ -1,8 +1,8 @@
 ﻿import { BatchGetCommand } from '@aws-sdk/lib-dynamodb';
 
 import type { VideoKey } from '../../../../../third-party/common/ts/interfaces';
+import { createLogger } from '../../../../../third-party/common/ts/runtime/logger';
 import { config } from '../../config/config';
-import { createLogger } from '../../shared/logger';
 import { docClient, getVideoKey } from '../../shared/repository';
 
 const GET_OPERATION_LIMIT = 100;

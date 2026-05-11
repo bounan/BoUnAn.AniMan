@@ -1,7 +1,7 @@
 ﻿import type { Handler } from 'aws-lambda/handler';
 
 import type { BotRequest, BotResponse } from '../../../../third-party/common/ts/interfaces';
-import { createLogger } from '../shared/logger';
+import { createLogger } from '../../../../third-party/common/ts/runtime/logger';
 
 // The mock handler is a simplified version of the handler that can be used for debugging.
 

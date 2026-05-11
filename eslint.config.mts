@@ -8,7 +8,6 @@ export default [
       '**/node_modules',
       '**/cdk.out',
       '**/coverage',
-      'third-party',
     ],
   },
   eslint.configs.recommended,

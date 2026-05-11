@@ -1,6 +1,6 @@
 ﻿import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
-import { createLogger } from './logger';
+import { createLogger } from '../../../../third-party/common/ts/runtime/logger';
 
 const logger = createLogger('shared/sns-publisher');
 
