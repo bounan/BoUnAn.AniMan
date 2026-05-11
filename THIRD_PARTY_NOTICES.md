@@ -103,6 +103,10 @@ https://github.com/aws/aws-sdk-js-v3/tree/main/packages-internal/middleware-logg
 License: Apache-2.0
 https://github.com/aws/aws-sdk-js-v3/tree/main/packages-internal/middleware-recursion-detection
 
+## @aws-sdk/middleware-sdk-s3 undefined
+License: Apache-2.0
+https://github.com/aws/aws-sdk-js-v3/tree/main/packages-internal/middleware-sdk-s3
+
 ## @aws-sdk/middleware-user-agent undefined
 License: Apache-2.0
 https://github.com/aws/aws-sdk-js-v3/tree/main/packages-internal/middleware-user-agent
@@ -115,6 +119,10 @@ https://github.com/aws/aws-sdk-js-v3/tree/main/packages/nested-clients
 License: Apache-2.0
 https://github.com/awslabs/smithy-typescript/tree/main/packages-internal/region-config-resolver
 
+## @aws-sdk/signature-v4-multi-region undefined
+License: Apache-2.0
+https://github.com/aws/aws-sdk-js-v3/tree/main/packages/signature-v4-multi-region
+
 ## @aws-sdk/token-providers undefined
 License: Apache-2.0
 https://github.com/aws/aws-sdk-js-v3/tree/main/packages/token-providers
@@ -122,6 +130,10 @@ https://github.com/aws/aws-sdk-js-v3/tree/main/packages/token-providers
 ## @aws-sdk/types undefined
 License: Apache-2.0
 https://github.com/aws/aws-sdk-js-v3/tree/main/packages-internal/types
+
+## @aws-sdk/util-arn-parser undefined
+License: Apache-2.0
+https://github.com/aws/aws-sdk-js-v3/tree/main/packages-internal/util-arn-parser
 
 ## @aws-sdk/util-dynamodb undefined
 License: Apache-2.0
@@ -151,10 +163,6 @@ https://github.com/aws/aws-sdk-js-v3/tree/main/packages-internal/xml-builder
 License: Apache-2.0
 https://github.com/awslabs/aws-lambda-invoke-store
 
-## @smithy/abort-controller undefined
-License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/abort-controller
-
 ## @smithy/config-resolver undefined
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/config-resolver
@@ -167,10 +175,6 @@ https://github.com/smithy-lang/smithy-typescript/tree/main/packages/core
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/credential-provider-imds
 
-## @smithy/eventstream-codec undefined
-License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-codec
-
 ## @smithy/eventstream-serde-browser undefined
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-serde-browser
@@ -182,10 +186,6 @@ https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-
 ## @smithy/eventstream-serde-node undefined
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-serde-node
-
-## @smithy/eventstream-serde-universal undefined
-License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/eventstream-serde-universal
 
 ## @smithy/fetch-http-handler undefined
 License: Apache-2.0
@@ -201,7 +201,7 @@ https://github.com/smithy-lang/smithy-typescript/tree/main/packages/invalid-depe
 
 ## @smithy/is-array-buffer undefined
 License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/is-array-buffer
+https://github.com/awslabs/smithy-typescript/tree/main/packages/is-array-buffer
 
 ## @smithy/middleware-content-length undefined
 License: Apache-2.0
@@ -239,18 +239,6 @@ https://github.com/smithy-lang/smithy-typescript/tree/main/packages/property-pro
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/protocol-http
 
-## @smithy/querystring-builder undefined
-License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/querystring-builder
-
-## @smithy/querystring-parser undefined
-License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/querystring-parser
-
-## @smithy/service-error-classification undefined
-License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/service-error-classification
-
 ## @smithy/shared-ini-file-loader undefined
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/shared-ini-file-loader
@@ -285,7 +273,7 @@ https://github.com/smithy-lang/smithy-typescript/tree/main/packages/util-body-le
 
 ## @smithy/util-buffer-from undefined
 License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/util-buffer-from
+https://github.com/awslabs/smithy-typescript/tree/main/packages/util-buffer-from
 
 ## @smithy/util-config-provider undefined
 License: Apache-2.0
@@ -303,10 +291,6 @@ https://github.com/smithy-lang/smithy-typescript/tree/main/packages/util-default
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/master/packages/util-endpoints
 
-## @smithy/util-hex-encoding undefined
-License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/util-hex-encoding
-
 ## @smithy/util-middleware undefined
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/master/packages/util-middleware
@@ -319,10 +303,6 @@ https://github.com/smithy-lang/smithy-typescript/tree/master/packages/util-retry
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/util-stream
 
-## @smithy/util-uri-escape undefined
-License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/util-uri-escape
-
 ## @smithy/util-utf8 undefined
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/util-utf8
@@ -331,9 +311,9 @@ https://github.com/smithy-lang/smithy-typescript/tree/main/packages/util-utf8
 License: Apache-2.0
 https://github.com/smithy-lang/smithy-typescript/tree/main/packages/util-waiter
 
-## @smithy/uuid undefined
-License: Apache-2.0
-https://github.com/smithy-lang/smithy-typescript/tree/main/packages/uuid
+## @nodable/entities undefined
+License: MIT
+https://github.com/nodable/val-parsers#readme
 
 ## bowser undefined
 License: MIT
@@ -362,6 +342,10 @@ https://github.com/NaturalIntelligence/path-expression-matcher#readme
 ## strnum undefined
 License: MIT
 https://github.com/NaturalIntelligence/strnum#readme
+
+## xml-naming undefined
+License: MIT
+https://github.com/NaturalIntelligence/xml-naming#readme
 
 ## tslib undefined
 License: 0BSD
