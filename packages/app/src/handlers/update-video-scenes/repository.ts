@@ -8,7 +8,10 @@ import type {
 import { config } from '../../config/config';
 import { MatchingStatusNum } from '../../models/matching-status-num';
 import type { VideoEntity } from '../../models/video-entity';
+import { createLogger } from '../../shared/logger';
 import { docClient, getVideoKey } from '../../shared/repository';
+
+const logger = createLogger('handlers/update-video-scenes/repository');
 
 const getStatus = (item: MatcherResultRequestItem): MatchingStatusNum => {
   if (!item.scenes) {
@@ -94,7 +97,7 @@ const createUpdateCommandForItem = (item: MatcherResultRequestItem): UpdateComma
 
 export const updateVideoScenes = async (request: MatcherResultRequest): Promise<void> => {
   if (!request?.items?.length) {
-    console.log('No items to update.');
+    logger.info('No items to update');
     return;
   }
 
@@ -103,12 +106,14 @@ export const updateVideoScenes = async (request: MatcherResultRequest): Promise<
   for (const [index, command] of updateCommands.entries()) {
     try {
       const result = await docClient.send(command);
-      console.log(`Updated item ${index} - result: ${JSON.stringify(result)}`);
+      logger.info('Updated item', { index, result });
     } catch (err) {
-      // Log error and continue with next item
-      console.error(`Failed to update item ${index} (videoKey: ${JSON.stringify(request.items[index]?.videoKey)}):`, err);
+      logger.error('Failed to update item', err, {
+        index,
+        videoKey: request.items[index]?.videoKey,
+      });
     }
   }
 
-  console.log('All items processed.');
+  logger.info('All items processed');
 };

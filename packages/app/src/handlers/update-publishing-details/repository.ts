@@ -2,7 +2,10 @@
 
 import type { PublishingDetails, VideoKey } from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
+import { createLogger } from '../../shared/logger';
 import { docClient, getVideoKey } from '../../shared/repository';
+
+const logger = createLogger('handlers/update-publishing-details/repository');
 
 export const savePublishingDetails = async (videoKey: VideoKey, details: PublishingDetails): Promise<void> => {
   const result = await docClient.send(new UpdateCommand({
@@ -23,5 +26,5 @@ export const savePublishingDetails = async (videoKey: VideoKey, details: Publish
     },
   }));
 
-  console.log('Update result: ' + JSON.stringify(result));
+  logger.info('Update result', { result });
 }

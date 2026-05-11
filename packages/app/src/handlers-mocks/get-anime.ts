@@ -1,11 +1,14 @@
 ﻿import type { Handler } from 'aws-lambda/handler';
 
 import type { BotRequest, BotResponse } from '../../../../third-party/common/ts/interfaces';
+import { createLogger } from '../shared/logger';
 
 // The mock handler is a simplified version of the handler that can be used for debugging.
 
+const logger = createLogger('handlers-mocks/get-anime');
+
 export const handler: Handler<BotRequest, BotResponse> = async (request) => {
-  console.log(request);
+  logger.info('Request', { request });
 
   if (!request.videoKey.myAnimeListId || !request.videoKey.dub || request.videoKey.episode === null) {
     throw new Error('Invalid request: ' + JSON.stringify(request));

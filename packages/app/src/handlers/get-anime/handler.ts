@@ -6,14 +6,17 @@ import { getEpisodes } from '../../api-clients/loan-api-client';
 import { initConfig } from '../../config/config';
 import { VideoStatusNum } from '../../models/video-status-num';
 import { videoStatusToStr } from '../../shared/helpers/video-status-to-str';
+import { createLogger } from '../../shared/logger';
 import { increasePriority, insertVideo } from '../../shared/repository';
 import { getAnimeForUser, getRegisteredEpisodes } from './repository';
 import { sendVideoRegisteredNotification } from './sns-client';
 
+const logger = createLogger('handlers/get-anime');
+
 const addAnime = async ({ videoKey }: BotRequest): Promise<VideoStatusNum> => {
   const dubEpisodes = await getEpisodes(videoKey.myAnimeListId, videoKey.dub);
   if (dubEpisodes.length === 0) {
-    console.warn('Video not available: ' + JSON.stringify(videoKey));
+    logger.warn('Video not available', { videoKey });
     return VideoStatusNum.NotAvailable;
   }
 
@@ -21,23 +24,23 @@ const addAnime = async ({ videoKey }: BotRequest): Promise<VideoStatusNum> => {
   const episodesToRegister = dubEpisodes.filter(episode => !registeredEpisodes.includes(episode));
 
   const videosToRegister = episodesToRegister.map(episode => ({ ...videoKey, episode }));
-  console.log('Videos to register: ' + JSON.stringify(videosToRegister));
+  logger.info('Videos to register', { videosToRegister });
 
   await insertVideo(videosToRegister);
-  console.log('Video added to database');
+  logger.info('Video added to database');
 
   await increasePriority(videoKey);
-  console.log('Priority increased for requested video');
+  logger.info('Priority increased for requested video');
 
   await sendVideoRegisteredNotification(videosToRegister);
-  console.log('Video registered notification sent: ' + JSON.stringify(videosToRegister));
+  logger.info('Video registered notification sent', { videosToRegister });
 
   return VideoStatusNum.Pending;
 }
 
 const process = async (request: BotRequest): Promise<BotResponse> => {
   const video = await getAnimeForUser(request.videoKey);
-  console.log('Video: ' + JSON.stringify(video));
+  logger.info('Video', { video });
 
   switch (video?.status) {
     case VideoStatusNum.Downloaded:
@@ -48,13 +51,13 @@ const process = async (request: BotRequest): Promise<BotResponse> => {
         scenes: video.scenes,
         publishingDetails: video.publishingDetails,
       };
-      console.log('Returning video as is: ' + JSON.stringify(response));
+      logger.info('Returning video as is', { response });
       return response;
     }
 
     case VideoStatusNum.Pending:
     case VideoStatusNum.Downloading: {
-      console.log('Returning video as pending or downloading');
+      logger.info('Returning video as pending or downloading');
       await increasePriority(request.videoKey);
       return {
         status: videoStatusToStr(video.status),
@@ -65,7 +68,7 @@ const process = async (request: BotRequest): Promise<BotResponse> => {
     }
 
     case undefined: {
-      console.log('Adding anime');
+      logger.info('Adding anime');
       const status = await addAnime(request);
       return {
         status: videoStatusToStr(status),

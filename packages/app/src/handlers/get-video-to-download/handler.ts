@@ -3,12 +3,15 @@
 import type { DownloaderResponse } from '../../../../../third-party/common/ts/interfaces';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { initConfig } from '../../config/config';
+import { createLogger } from '../../shared/logger';
 import { getEpisodeToDownloadAndLock } from './repository';
+
+const logger = createLogger('handlers/get-video-to-download');
 
 
 const process = async (): Promise<DownloaderResponse> => {
   const videoToDownload = await getEpisodeToDownloadAndLock();
-  console.log('Video to download: ' + JSON.stringify(videoToDownload));
+  logger.info('Video to download', { videoToDownload });
 
   return { videoKey: videoToDownload };
 }

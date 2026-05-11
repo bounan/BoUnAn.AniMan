@@ -4,7 +4,10 @@ import type { VideoKey } from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
 import type { VideoEntity } from '../../models/video-entity';
 import { VideoStatusNum } from '../../models/video-status-num';
+import { createLogger } from '../../shared/logger';
 import { docClient, getVideoKey } from '../../shared/repository';
+
+const logger = createLogger('handlers/update-video-status/repository');
 
 const markVideo = async (
   request: VideoKey,
@@ -35,7 +38,7 @@ const markVideo = async (
   }
 
   const result = await docClient.send(updateCommand);
-  console.log('Update result: ' + JSON.stringify(result));
+  logger.info('Update result', { result });
 
   return result.Attributes as VideoEntity;
 }

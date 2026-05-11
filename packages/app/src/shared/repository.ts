@@ -6,8 +6,10 @@ import { config } from '../config/config';
 import { MatchingStatusNum } from '../models/matching-status-num';
 import type { VideoEntity } from '../models/video-entity';
 import { VideoStatusNum } from '../models/video-status-num';
+import { createLogger } from './logger';
 
 const dynamoDbClient = new DynamoDBClient();
+const logger = createLogger('shared/repository');
 
 export const docClient = DynamoDBDocumentClient.from(dynamoDbClient);
 
@@ -64,10 +66,10 @@ export const insertVideo = async (videos: VideoKey[]): Promise<void> => {
 
   for (const command of commands) {
     const result = await docClient.send(command);
-    console.log('Inserted videos: ' + JSON.stringify(result));
+    logger.info('Inserted videos', { result });
   }
 
-  console.log('All videos inserted');
+  logger.info('All videos inserted');
 }
 
 export const increasePriority = async (videoKey: VideoKey): Promise<void> => {

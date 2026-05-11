@@ -4,16 +4,19 @@ import type { DownloaderResultRequest } from '../../../../../third-party/common/
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { initConfig } from '../../config/config';
 import type { VideoEntity } from '../../models/video-entity';
+import { createLogger } from '../../shared/logger';
 import { markVideoDownloaded, markVideoFailed } from './repository';
 import { sendVideoDownloadedNotification } from './sns-client';
+
+const logger = createLogger('handlers/update-video-status');
 
 
 const markVideo = async (request: DownloaderResultRequest): Promise<VideoEntity> => {
   if (request.messageId) {
-    console.log('Video downloaded.');
+    logger.info('Video downloaded');
     return markVideoDownloaded(request.videoKey, request.messageId);
   } else {
-    console.warn('Video download failed.');
+    logger.warn('Video download failed');
     return markVideoFailed(request.videoKey);
   }
 };
@@ -27,7 +30,7 @@ const notify = async (request: DownloaderResultRequest, videoEntity: VideoEntity
   };
 
   await sendVideoDownloadedNotification(notification);
-  console.log('Video downloaded notification sent.');
+  logger.info('Video downloaded notification sent');
 };
 
 const process = async (request: DownloaderResultRequest): Promise<void> => {

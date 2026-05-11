@@ -3,31 +3,34 @@
 import type { RegisterVideosRequest } from '../../../../../third-party/common/ts/interfaces';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { initConfig } from '../../config/config';
+import { createLogger } from '../../shared/logger';
 import { insertVideo } from '../../shared/repository';
 import { getExistingVideos } from './repository';
 import { sendVideoRegisteredNotification } from './sns-client';
 
+const logger = createLogger('handlers/register-videos');
+
 const process = async (request: RegisterVideosRequest): Promise<void> => {
-  console.log('Processing request: ' + JSON.stringify(request));
+  logger.info('Processing request', { request });
 
   const existingVideos = await getExistingVideos(request.items.map(x => x.videoKey));
-  console.log('Existing videos: ' + JSON.stringify(existingVideos));
+  logger.info('Existing videos', { existingVideos });
 
   const videosToRegister = request.items
     .map(x => x.videoKey)
     .filter(x => !existingVideos
       .some(y => y.myAnimeListId === x.myAnimeListId && y.dub === x.dub && y.episode === x.episode));
-  console.log('Videos to register: ' + JSON.stringify(videosToRegister));
+  logger.info('Videos to register', { videosToRegister });
   if (videosToRegister.length === 0) {
-    console.log('No videos to register');
+    logger.info('No videos to register');
     return;
   }
 
   await insertVideo(videosToRegister);
-  console.log('Videos added');
+  logger.info('Videos added');
 
   await sendVideoRegisteredNotification(videosToRegister);
-  console.log('Notification sent');
+  logger.info('Notification sent');
 }
 
 export const handler: Handler<RegisterVideosRequest> = async (request) => {

@@ -2,10 +2,12 @@
 
 import type { VideoKey } from '../../../../../third-party/common/ts/interfaces';
 import { config } from '../../config/config';
+import { createLogger } from '../../shared/logger';
 import { docClient, getVideoKey } from '../../shared/repository';
 
 const GET_OPERATION_LIMIT = 100;
 const TABLE_PRIMARY_KEY = 'primaryKey';
+const logger = createLogger('handlers/register-videos/repository');
 
 export const getExistingVideos = async (videoKeys: VideoKey[]): Promise<VideoKey[]> => {
   const keyValuePairs = Object.fromEntries(videoKeys.map(x => [getVideoKey(x), x]));
@@ -30,7 +32,7 @@ export const getExistingVideos = async (videoKeys: VideoKey[]): Promise<VideoKey
     const response = await docClient.send(command);
     const chunkResult = response.Responses?.[config.value.database.tableName] ?? [];
     const foundKeys = chunkResult.map(x => x[TABLE_PRIMARY_KEY]);
-    console.log('Found keys: ' + JSON.stringify(foundKeys));
+    logger.info('Found keys', { foundKeys });
 
     foundPrimaryKeys.push(...foundKeys);
   }

@@ -1,5 +1,9 @@
 ﻿import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
+import { createLogger } from './logger';
+
+const logger = createLogger('shared/sns-publisher');
+
 export const publishJsonMessage = async <T>(topicArn: string, payload: T): Promise<void> => {
   const message = {
     default: JSON.stringify(payload),
@@ -13,6 +17,6 @@ export const publishJsonMessage = async <T>(topicArn: string, payload: T): Promi
 
   const snsClient = new SNSClient();
   await snsClient.send(command);
-  console.log('Notification sent: ' + JSON.stringify(message));
+  logger.info('Notification sent', { message });
 };
 

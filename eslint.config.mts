@@ -21,6 +21,7 @@ export default [
 
     rules: {
       indent: ['error', 2, { SwitchCase: 1 }],
+      'no-console': ['error'],
 
       quotes: ['error', 'single'],
     },

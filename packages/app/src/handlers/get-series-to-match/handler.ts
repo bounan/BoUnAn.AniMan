@@ -3,12 +3,15 @@
 import type { MatcherResponse } from '../../../../../third-party/common/ts/interfaces';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { initConfig } from '../../config/config';
+import { createLogger } from '../../shared/logger';
 import { getEpisodesToMatch } from './repository';
+
+const logger = createLogger('handlers/get-series-to-match');
 
 
 const process = async (): Promise<MatcherResponse> => {
   const episodes = await getEpisodesToMatch();
-  console.log('Episodes to match: ' + JSON.stringify(episodes));
+  logger.info('Episodes to match', { episodes });
 
   return { videosToMatch: episodes };
 }
