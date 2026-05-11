@@ -9,12 +9,14 @@ import { docClient, getVideoKey } from '../../shared/repository';
 
 const logger = createLogger('handlers/update-video-status/repository');
 
-const markVideo = async (
+type UpdateCommandInput = ConstructorParameters<typeof UpdateCommand>[0];
+
+const buildMarkVideoBaseInput = (
   request: VideoKey,
   status: VideoStatusNum,
   messageId: number | null,
-): Promise<VideoEntity> => {
-  const updateCommand = new UpdateCommand({
+): UpdateCommandInput => {
+  return {
     TableName: config.value.database.tableName,
     Key: { primaryKey: getVideoKey(request) },
     ConditionExpression: 'attribute_exists(primaryKey)',
@@ -30,23 +32,37 @@ const markVideo = async (
       ':updatedAt': new Date().toISOString(),
     },
     ReturnValues: 'ALL_NEW',
+  };
+};
+
+const buildSuccessCleanupUpdate = (request: VideoKey, messageId: number): UpdateCommand => {
+  const baseInput = buildMarkVideoBaseInput(request, VideoStatusNum.Downloaded, messageId);
+
+  return new UpdateCommand({
+    ...baseInput,
+    UpdateExpression: `${baseInput.UpdateExpression} REMOVE #sortKey`,
+    ExpressionAttributeNames: {
+      ...baseInput.ExpressionAttributeNames,
+      '#sortKey': 'sortKey',
+    },
   });
+};
 
-  if (status === VideoStatusNum.Downloaded) {
-    updateCommand.input.UpdateExpression += ' REMOVE #sortKey';
-    updateCommand.input.ExpressionAttributeNames!['#sortKey'] = 'sortKey';
-  }
+const buildRetryFailureUpdate = (request: VideoKey): UpdateCommand => {
+  return new UpdateCommand(buildMarkVideoBaseInput(request, VideoStatusNum.Failed, null));
+};
 
-  const result = await docClient.send(updateCommand);
+const executeMarkVideoUpdate = async (command: UpdateCommand): Promise<VideoEntity> => {
+  const result = await docClient.send(command);
   logger.info('Update result', { result });
 
   return result.Attributes as VideoEntity;
-}
+};
 
 export const markVideoDownloaded = async (request: VideoKey, messageId: number): Promise<VideoEntity> => {
-  return markVideo(request, VideoStatusNum.Downloaded, messageId);
-}
+  return executeMarkVideoUpdate(buildSuccessCleanupUpdate(request, messageId));
+};
 
 export const markVideoFailed = async (request: VideoKey): Promise<VideoEntity> => {
-  return markVideo(request, VideoStatusNum.Failed, null);
-}
+  return executeMarkVideoUpdate(buildRetryFailureUpdate(request));
+};

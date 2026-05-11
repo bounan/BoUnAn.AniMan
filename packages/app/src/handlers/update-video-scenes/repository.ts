@@ -13,6 +13,8 @@ import { docClient, getVideoKey } from '../../shared/repository';
 
 const logger = createLogger('handlers/update-video-scenes/repository');
 
+type UpdateCommandInput = ConstructorParameters<typeof UpdateCommand>[0];
+
 const getStatus = (item: MatcherResultRequestItem): MatchingStatusNum => {
   if (!item.scenes) {
     return MatchingStatusNum.Failed;
@@ -52,47 +54,80 @@ const buildScenes = (itemScenes: Scenes): VideoEntity['scenes'] => {
   return scenes;
 };
 
-const buildUpdateParts = (status: MatchingStatusNum, scenes: VideoEntity['scenes'] | null): {
-  updateExpression: string;
-  expressionAttributeValues: Record<string, unknown>
-} => {
-  let updateExpression = 'SET matchingStatus = :status, updatedAt = :updatedAt';
-  const expressionAttributeValues: Record<string, unknown> = {
-    ':status': status,
-    ':updatedAt': new Date().toISOString(),
-  };
-
-  if (status === MatchingStatusNum.ProcessedWithResults) {
-    updateExpression += ', scenes = :scenes';
-    expressionAttributeValues[':scenes'] = scenes;
-  }
-
-  if (status === MatchingStatusNum.ProcessedWithResults || status === MatchingStatusNum.ProcessedWithNoResults) {
-    updateExpression += ' REMOVE matchingGroup';
-  }
-
+const buildUpdateBaseInput = (item: MatcherResultRequestItem, status: MatchingStatusNum): UpdateCommandInput => {
   return {
-    updateExpression,
-    expressionAttributeValues,
+    TableName: config.value.database.tableName,
+    Key: { primaryKey: getVideoKey(item.videoKey) },
+    ConditionExpression: 'attribute_exists(primaryKey)',
+    ReturnValues: 'NONE',
+    UpdateExpression: 'SET matchingStatus = :status, updatedAt = :updatedAt',
+    ExpressionAttributeValues: {
+      ':status': status,
+      ':updatedAt': new Date().toISOString(),
+    },
   };
+};
+
+const buildSuccessCleanupUpdate = (item: MatcherResultRequestItem, scenes: VideoEntity['scenes']): UpdateCommand => {
+  const baseInput = buildUpdateBaseInput(item, MatchingStatusNum.ProcessedWithResults);
+
+  return new UpdateCommand({
+    ...baseInput,
+    UpdateExpression: `${baseInput.UpdateExpression}, scenes = :scenes REMOVE matchingGroup`,
+    ExpressionAttributeValues: {
+      ...baseInput.ExpressionAttributeValues,
+      ':scenes': scenes,
+    },
+  });
+};
+
+const buildNoResultsCleanupUpdate = (item: MatcherResultRequestItem): UpdateCommand => {
+  const baseInput = buildUpdateBaseInput(item, MatchingStatusNum.ProcessedWithNoResults);
+
+  return new UpdateCommand({
+    ...baseInput,
+    UpdateExpression: `${baseInput.UpdateExpression} REMOVE matchingGroup`,
+  });
+};
+
+const buildRetryFailureUpdate = (item: MatcherResultRequestItem): UpdateCommand => {
+  return new UpdateCommand(buildUpdateBaseInput(item, MatchingStatusNum.Failed));
 };
 
 const createUpdateCommandForItem = (item: MatcherResultRequestItem): UpdateCommand => {
   const status = getStatus(item);
 
-  const scenes = item.scenes
-    ? buildScenes(item.scenes)
-    : null;
+  if (status === MatchingStatusNum.ProcessedWithResults && item.scenes) {
+    return buildSuccessCleanupUpdate(item, buildScenes(item.scenes));
+  }
 
-  const { updateExpression, expressionAttributeValues } = buildUpdateParts(status, scenes);
+  if (status === MatchingStatusNum.ProcessedWithNoResults) {
+    return buildNoResultsCleanupUpdate(item);
+  }
 
-  return new UpdateCommand({
-    TableName: config.value.database.tableName,
-    Key: { primaryKey: getVideoKey(item.videoKey) },
-    ConditionExpression: 'attribute_exists(primaryKey)',
-    UpdateExpression: updateExpression,
-    ExpressionAttributeValues: expressionAttributeValues,
-  });
+  return buildRetryFailureUpdate(item);
+};
+
+const createUpdateCommands = (items: MatcherResultRequestItem[]): UpdateCommand[] => {
+  return items.map(createUpdateCommandForItem);
+};
+
+const updateItem = async (command: UpdateCommand): Promise<void> => {
+  const result = await docClient.send(command);
+  logger.info('Updated item', { result });
+};
+
+const updateItems = async (request: MatcherResultRequest, updateCommands: UpdateCommand[]): Promise<void> => {
+  for (const [index, command] of updateCommands.entries()) {
+    try {
+      await updateItem(command);
+    } catch (err) {
+      logger.error('Failed to update item', err, {
+        index,
+        videoKey: request.items[index]?.videoKey,
+      });
+    }
+  }
 };
 
 export const updateVideoScenes = async (request: MatcherResultRequest): Promise<void> => {
@@ -101,19 +136,7 @@ export const updateVideoScenes = async (request: MatcherResultRequest): Promise<
     return;
   }
 
-  const updateCommands = request.items.map(createUpdateCommandForItem);
-
-  for (const [index, command] of updateCommands.entries()) {
-    try {
-      const result = await docClient.send(command);
-      logger.info('Updated item', { index, result });
-    } catch (err) {
-      logger.error('Failed to update item', err, {
-        index,
-        videoKey: request.items[index]?.videoKey,
-      });
-    }
-  }
-
+  const updateCommands = createUpdateCommands(request.items);
+  await updateItems(request, updateCommands);
   logger.info('All items processed');
 };
