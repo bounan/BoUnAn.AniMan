@@ -1,29 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const snsSendMock = vi.fn();
-const publishInputs: unknown[] = [];
+const publishJsonMessageMock = vi.hoisted(() => vi.fn());
 
-class PublishCommandMock {
-  input: unknown;
-
-  constructor(input: unknown) {
-    this.input = input;
-    publishInputs.push(input);
-  }
-}
-
-vi.mock('@aws-sdk/client-sns', () => ({
-  PublishCommand: PublishCommandMock,
-  SNSClient: class {
-    send = snsSendMock;
-  },
+vi.mock('../../shared/sns-publisher', () => ({
+  publishJsonMessage: publishJsonMessageMock,
 }));
 
-describe('packages/app/src/handlers/update-video-scenes/sns-client.ts', () => {
+describe('sendSceneRecognizedNotification', () => {
   beforeEach(() => {
     vi.resetModules();
-    snsSendMock.mockReset().mockResolvedValue({});
-    publishInputs.length = 0;
+    publishJsonMessageMock.mockReset();
   });
 
   it('publishes scene-recognized notifications', async () => {
@@ -45,12 +31,7 @@ describe('packages/app/src/handlers/update-video-scenes/sns-client.ts', () => {
 
     await module.sendSceneRecognizedNotification(items);
 
-    expect(publishInputs[0]).toEqual({
-      TopicArn: 'arn:scene',
-      Message: JSON.stringify({
-        default: JSON.stringify({ items }),
-      }),
-      MessageStructure: 'json',
-    });
+    expect(publishJsonMessageMock).toHaveBeenCalledTimes(1);
+    expect(publishJsonMessageMock).toHaveBeenCalledWith('arn:scene', { items });
   });
 });

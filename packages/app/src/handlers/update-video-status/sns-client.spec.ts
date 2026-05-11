@@ -1,29 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const snsSendMock = vi.fn();
-const publishInputs: unknown[] = [];
+const publishJsonMessageMock = vi.hoisted(() => vi.fn());
 
-class PublishCommandMock {
-  input: unknown;
-
-  constructor(input: unknown) {
-    this.input = input;
-    publishInputs.push(input);
-  }
-}
-
-vi.mock('@aws-sdk/client-sns', () => ({
-  PublishCommand: PublishCommandMock,
-  SNSClient: class {
-    send = snsSendMock;
-  },
+vi.mock('../../shared/sns-publisher', () => ({
+  publishJsonMessage: publishJsonMessageMock,
 }));
 
-describe('packages/app/src/handlers/update-video-status/sns-client.ts', () => {
+describe('sendVideoDownloadedNotification', () => {
   beforeEach(() => {
     vi.resetModules();
-    snsSendMock.mockReset().mockResolvedValue({});
-    publishInputs.length = 0;
+    publishJsonMessageMock.mockReset();
   });
 
   it('publishes the video-downloaded notification', async () => {
@@ -47,12 +33,7 @@ describe('packages/app/src/handlers/update-video-status/sns-client.ts', () => {
 
     await module.sendVideoDownloadedNotification(notification);
 
-    expect(publishInputs[0]).toEqual({
-      TopicArn: 'arn:downloaded',
-      Message: JSON.stringify({
-        default: JSON.stringify(notification),
-      }),
-      MessageStructure: 'json',
-    });
+    expect(publishJsonMessageMock).toHaveBeenCalledTimes(1);
+    expect(publishJsonMessageMock).toHaveBeenCalledWith('arn:downloaded', notification);
   });
 });
