@@ -17,5 +17,5 @@ const process = async (request: MatcherResultRequest): Promise<void> => {
 
 export const handler: Handler<MatcherResultRequest, void> = async (request) => {
   await initConfig();
-  return retry(async () => await process(request), 3, () => true);
+  return retry(async () => await process(request), 3);
 };

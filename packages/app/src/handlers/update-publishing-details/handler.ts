@@ -17,5 +17,5 @@ const process = async (request: PublisherResultRequest): Promise<void> => {
 export const handler: Handler<PublisherResultRequest, void> = async (request) => {
   await initConfig();
   console.log('Request: ' + JSON.stringify(request));
-  return retry(async () => await process(request), 3, () => true);
+  return retry(async () => await process(request), 3);
 };

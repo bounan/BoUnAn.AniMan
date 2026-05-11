@@ -15,5 +15,5 @@ const process = async (): Promise<DownloaderResponse> => {
 
 export const handler: Handler<undefined, DownloaderResponse> = async () => {
   await initConfig();
-  return retry(async () => await process(), 3, () => true);
+  return retry(async () => await process(), 3);
 };

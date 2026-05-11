@@ -40,5 +40,5 @@ export const handler: Handler<RegisterVideosRequest> = async (request) => {
     throw new Error('Invalid request: ' + JSON.stringify(request));
   }
 
-  return retry(async () => await process(request), 3, () => true);
+  return retry(async () => await process(request), 3);
 };
