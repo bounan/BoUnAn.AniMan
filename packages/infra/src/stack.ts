@@ -98,7 +98,7 @@ export class AniManCdkStack extends cfn.Stack {
       partitionKey: { name: 'status', type: dynamodb.AttributeType.NUMBER },
       sortKey: { name: 'sortKey', type: dynamodb.AttributeType.STRING },
       projectionType: dynamodb.ProjectionType.INCLUDE,
-      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'performedAttempts'] as (keyof VideoEntity)[],
+      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'downloadPerformedAttempts'] as (keyof VideoEntity)[],
       ...indexCapacities,
     };
 
@@ -107,7 +107,7 @@ export class AniManCdkStack extends cfn.Stack {
       partitionKey: { name: 'matchingStatus', type: dynamodb.AttributeType.NUMBER },
       sortKey: { name: 'matchingGroup', type: dynamodb.AttributeType.STRING },
       projectionType: dynamodb.ProjectionType.INCLUDE,
-      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'] as (keyof VideoEntity)[],
+      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'matchingPerformedAttempts'] as (keyof VideoEntity)[],
       ...indexCapacities,
     };
 
@@ -184,6 +184,10 @@ export class AniManCdkStack extends cfn.Stack {
       downloadRetry: {
         maxAttempts: config.maxDownloadFailedAttempts,
         retryDelayMs: config.downloadRetryDelayMs,
+      },
+      matchingRetry: {
+        maxAttempts: config.maxMatchingFailedAttempts,
+        retryDelayMs: config.matchingRetryDelayMs,
       },
     } as Required<RuntimeConfig>;
 

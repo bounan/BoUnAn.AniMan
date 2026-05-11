@@ -73,8 +73,13 @@ describe('packages/app/src/handlers/update-video-scenes/repository.ts', () => {
 
     const failedCommand = updateInput[2] as {
       UpdateExpression: string;
+      ExpressionAttributeNames: Record<string, string>;
+      ExpressionAttributeValues: Record<string, number | string>;
     };
     expect(failedCommand.UpdateExpression).not.toContain('REMOVE matchingGroup');
+    expect(failedCommand.UpdateExpression).toContain('#matchingPerformedAttempts = #matchingPerformedAttempts + :attemptIncrement');
+    expect(failedCommand.ExpressionAttributeNames['#matchingPerformedAttempts']).toBe('matchingPerformedAttempts');
+    expect(failedCommand.ExpressionAttributeValues[':attemptIncrement']).toBe(1);
   });
 
   it('persists ending and scene-after-ending intervals when present', async () => {

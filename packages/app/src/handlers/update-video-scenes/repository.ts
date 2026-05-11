@@ -91,7 +91,19 @@ const buildNoResultsCleanupUpdate = (item: MatcherResultRequestItem): UpdateComm
 };
 
 const buildRetryFailureUpdate = (item: MatcherResultRequestItem): UpdateCommand => {
-  return new UpdateCommand(buildUpdateBaseInput(item, MatchingStatusNum.Failed));
+  const baseInput = buildUpdateBaseInput(item, MatchingStatusNum.Failed);
+
+  return new UpdateCommand({
+    ...baseInput,
+    UpdateExpression: `${baseInput.UpdateExpression}, #matchingPerformedAttempts = #matchingPerformedAttempts + :attemptIncrement`,
+    ExpressionAttributeNames: {
+      '#matchingPerformedAttempts': 'matchingPerformedAttempts',
+    },
+    ExpressionAttributeValues: {
+      ...baseInput.ExpressionAttributeValues,
+      ':attemptIncrement': 1,
+    },
+  });
 };
 
 const createUpdateCommandForItem = (item: MatcherResultRequestItem): UpdateCommand => {

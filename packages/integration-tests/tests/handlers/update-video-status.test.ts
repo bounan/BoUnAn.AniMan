@@ -49,7 +49,7 @@ describe('update-video-status', () => {
       matchingGroup: '1#Dub',
       createdAt: '2025-01-01T00:00:00.000Z',
       updatedAt: '2025-01-01T00:00:00.000Z',
-      performedAttempts: 2,
+      downloadPerformedAttempts: 2,
     });
 
     await handler({
@@ -59,7 +59,7 @@ describe('update-video-status', () => {
     const row = (await table.getAllRecords())[0];
     expect(row.status).toBe(4);
     expect(row.messageId).toBeNull();
-    expect(row.performedAttempts).toBe(3);
+    expect(row.downloadPerformedAttempts).toBe(3);
     expect(published.messages).toHaveLength(1);
     await performCommonChecks(table);
   });

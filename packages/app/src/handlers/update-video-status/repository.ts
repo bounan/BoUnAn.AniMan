@@ -53,10 +53,10 @@ const buildRetryFailureUpdate = (request: VideoKey): UpdateCommand => {
 
   return new UpdateCommand({
     ...baseInput,
-    UpdateExpression: `${baseInput.UpdateExpression}, #performedAttempts = #performedAttempts + :attemptIncrement`,
+    UpdateExpression: `${baseInput.UpdateExpression}, #downloadPerformedAttempts = #downloadPerformedAttempts + :attemptIncrement`,
     ExpressionAttributeNames: {
       ...baseInput.ExpressionAttributeNames,
-      '#performedAttempts': 'performedAttempts',
+      '#downloadPerformedAttempts': 'downloadPerformedAttempts',
     },
     ExpressionAttributeValues: {
       ...baseInput.ExpressionAttributeValues,

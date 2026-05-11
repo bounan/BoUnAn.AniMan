@@ -87,8 +87,8 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
       ExpressionAttributeNames: Record<string, string>;
       ExpressionAttributeValues: Record<string, number | string>;
     };
-    expect(scanCommand.FilterExpression).toBe('#S = :pending OR (#S = :failed AND #performedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)');
-    expect(scanCommand.ExpressionAttributeNames['#performedAttempts']).toBe('performedAttempts');
+    expect(scanCommand.FilterExpression).toBe('#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)');
+    expect(scanCommand.ExpressionAttributeNames['#downloadPerformedAttempts']).toBe('downloadPerformedAttempts');
     expect(scanCommand.ExpressionAttributeNames['#updatedAt']).toBe('updatedAt');
     expect(scanCommand.ExpressionAttributeValues[':pending']).toBe(1);
     expect(scanCommand.ExpressionAttributeValues[':failed']).toBe(4);
@@ -101,8 +101,8 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
       ExpressionAttributeValues: Record<string, number | string>;
     };
     expect(updateCommand.ConditionExpression)
-      .toBe('updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #performedAttempts < :maxAttempts AND updatedAt < :retryThreshold))');
-    expect(updateCommand.ExpressionAttributeNames['#performedAttempts']).toBe('performedAttempts');
+      .toBe('updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))');
+    expect(updateCommand.ExpressionAttributeNames['#downloadPerformedAttempts']).toBe('downloadPerformedAttempts');
     expect(updateCommand.ExpressionAttributeValues[':failed']).toBe(4);
     expect(updateCommand.ExpressionAttributeValues[':maxAttempts']).toBe(5);
   });
@@ -116,7 +116,7 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
           myAnimeListId: 1,
           dub: 'Dub',
           episode: 6,
-          performedAttempts: 2,
+          downloadPerformedAttempts: 2,
         }],
       })
       .mockResolvedValueOnce({});

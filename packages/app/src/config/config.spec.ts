@@ -39,6 +39,10 @@ describe('packages/app/src/config/config.ts', () => {
         maxAttempts: 5,
         retryDelayMs: 60 * 60 * 1000,
       },
+      matchingRetry: {
+        maxAttempts: 5,
+        retryDelayMs: 60 * 60 * 1000,
+      },
     };
     fetchSsmValueMock.mockResolvedValue(value);
 

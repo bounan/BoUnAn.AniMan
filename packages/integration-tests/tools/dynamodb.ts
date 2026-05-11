@@ -83,7 +83,7 @@ export class DynamoDbTableFixture {
           ],
           Projection: {
             ProjectionType: 'INCLUDE',
-            NonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'performedAttempts'],
+            NonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'downloadPerformedAttempts'],
           },
         },
         {
@@ -94,7 +94,7 @@ export class DynamoDbTableFixture {
           ],
           Projection: {
             ProjectionType: 'INCLUDE',
-            NonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'],
+            NonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'matchingPerformedAttempts'],
           },
         },
       ],

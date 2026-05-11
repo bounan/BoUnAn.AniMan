@@ -2,5 +2,7 @@
   "alertEmail": "",
   "loanApiFunctionArn": "",
   "maxDownloadFailedAttempts": 5,
-  "downloadRetryDelayMs": 3600000
+  "downloadRetryDelayMs": 3600000,
+  "maxMatchingFailedAttempts": 5,
+  "matchingRetryDelayMs": 3600000
 }

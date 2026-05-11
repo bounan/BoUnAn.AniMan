@@ -49,7 +49,7 @@ describe('get-video-to-download', () => {
       matchingGroup: '1#Dub',
       createdAt: '2025-01-01T00:00:00.000Z',
       updatedAt: '2025-01-01T00:00:00.000Z',
-      performedAttempts: 2,
+      downloadPerformedAttempts: 2,
     });
 
     const response = await handler(undefined, null as never, null as never);
@@ -60,7 +60,7 @@ describe('get-video-to-download', () => {
 
     const row = (await table.getAllRecords())[0];
     expect(row.status).toBe(2);
-    expect(row.performedAttempts).toBe(2);
+    expect(row.downloadPerformedAttempts).toBe(2);
     await performCommonChecks(table);
   });
 
@@ -80,7 +80,7 @@ describe('get-video-to-download', () => {
         matchingGroup: '1#Dub',
         createdAt: '2025-01-01T00:00:00.000Z',
         updatedAt: '2025-01-01T00:00:00.000Z',
-        performedAttempts: 5,
+        downloadPerformedAttempts: 5,
       },
       {
         primaryKey: '1#Dub#5',
@@ -94,7 +94,7 @@ describe('get-video-to-download', () => {
         matchingGroup: '1#Dub',
         createdAt: recentIso,
         updatedAt: recentIso,
-        performedAttempts: 2,
+        downloadPerformedAttempts: 2,
       },
     );
 

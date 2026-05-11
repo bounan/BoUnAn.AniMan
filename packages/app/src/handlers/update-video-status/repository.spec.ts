@@ -67,8 +67,8 @@ describe('packages/app/src/handlers/update-video-status/repository.ts', () => {
       ExpressionAttributeNames: Record<string, string>;
       ExpressionAttributeValues: Record<string, number | null | string>;
     };
-    expect(failedUpdate.UpdateExpression).toContain('#performedAttempts = #performedAttempts + :attemptIncrement');
-    expect(failedUpdate.ExpressionAttributeNames['#performedAttempts']).toBe('performedAttempts');
+    expect(failedUpdate.UpdateExpression).toContain('#downloadPerformedAttempts = #downloadPerformedAttempts + :attemptIncrement');
+    expect(failedUpdate.ExpressionAttributeNames['#downloadPerformedAttempts']).toBe('downloadPerformedAttempts');
     expect(failedUpdate.ExpressionAttributeValues[':attemptIncrement']).toBe(1);
   });
 });

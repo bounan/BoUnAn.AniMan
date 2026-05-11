@@ -18,7 +18,7 @@ interface Topics {
   sceneRecognisedTopicArn: string;
 }
 
-interface DownloadRetryConfig {
+interface RetryConfig {
   maxAttempts: number;
   retryDelayMs: number;
 }
@@ -27,7 +27,8 @@ export interface Config {
   loanApiConfig: LoanApiConfig;
   database: DatabaseConfig;
   topics: Topics;
-  downloadRetry: DownloadRetryConfig;
+  downloadRetry: RetryConfig;
+  matchingRetry: RetryConfig;
 }
 
 let cachedConfig: Config | undefined;

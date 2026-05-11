@@ -45,7 +45,8 @@ export const insertVideo = async (videos: VideoKey[]): Promise<void> => {
     matchingStatus: MatchingStatusNum.Pending,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    performedAttempts: 0,
+    downloadPerformedAttempts: 0,
+    matchingPerformedAttempts: 0,
   } as VideoEntity));
 
   const batches = putCommands.reduce((acc, item, index) => {

@@ -19,10 +19,10 @@ export const getEpisodeToDownloadAndLock = async (): Promise<GetEpisodeToDownloa
     TableName: config.value.database.tableName,
     IndexName: config.value.database.secondaryIndexName,
     Limit: 10, // Scan a few items to reduce chance of empty result
-    FilterExpression: '#S = :pending OR (#S = :failed AND #performedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
+    FilterExpression: '#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
     ExpressionAttributeNames: {
       '#S': 'status',
-      '#performedAttempts': 'performedAttempts',
+      '#downloadPerformedAttempts': 'downloadPerformedAttempts',
       '#updatedAt': 'updatedAt',
     },
     ExpressionAttributeValues: {
@@ -35,7 +35,7 @@ export const getEpisodeToDownloadAndLock = async (): Promise<GetEpisodeToDownloa
   }));
 
   const video = pendingVideosResponse.Items?.[0] as
-    Pick<VideoEntity, 'primaryKey' | 'updatedAt' | 'myAnimeListId' | 'dub' | 'episode'> | undefined;
+    Pick<VideoEntity, 'primaryKey' | 'updatedAt' | 'myAnimeListId' | 'dub' | 'episode' | 'downloadPerformedAttempts'> | undefined;
   if (!video) {
     return undefined;
   }
@@ -44,10 +44,10 @@ export const getEpisodeToDownloadAndLock = async (): Promise<GetEpisodeToDownloa
     TableName: config.value.database.tableName,
     Key: { primaryKey: video.primaryKey },
     UpdateExpression: 'SET #S = :downloading, updatedAt = :now',
-    ConditionExpression: 'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #performedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
+    ConditionExpression: 'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
     ExpressionAttributeNames: {
       '#S': 'status',
-      '#performedAttempts': 'performedAttempts',
+      '#downloadPerformedAttempts': 'downloadPerformedAttempts',
     },
     ExpressionAttributeValues: {
       ':pending': VideoStatusNum.Pending,

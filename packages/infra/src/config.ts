@@ -10,6 +10,8 @@ export interface Config {
   loanApiFunctionArn: string;
   maxDownloadFailedAttempts: number;
   downloadRetryDelayMs: number;
+  maxMatchingFailedAttempts: number;
+  matchingRetryDelayMs: number;
 }
 
 const getValue = (stack: Stack, prefix: string, key: keyof Config): string => {
@@ -28,4 +30,6 @@ export const getConfig = (stack: Stack, prefix: string): Config => ({
   loanApiFunctionArn: getValue(stack, prefix, 'loanApiFunctionArn'),
   maxDownloadFailedAttempts: getNumberValue(stack, prefix, 'maxDownloadFailedAttempts'),
   downloadRetryDelayMs: getNumberValue(stack, prefix, 'downloadRetryDelayMs'),
+  maxMatchingFailedAttempts: getNumberValue(stack, prefix, 'maxMatchingFailedAttempts'),
+  matchingRetryDelayMs: getNumberValue(stack, prefix, 'matchingRetryDelayMs'),
 });

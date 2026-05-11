@@ -43,6 +43,7 @@ describe('update-video-scenes', () => {
         matchingGroup: '1#Dub',
         createdAt: '2025-01-01T00:00:00.000Z',
         updatedAt: '2025-01-01T00:00:00.000Z',
+        matchingPerformedAttempts: 2,
       },
     );
 
@@ -72,6 +73,7 @@ describe('update-video-scenes', () => {
     expect(rows.find(x => x.primaryKey === '1#Dub#2')?.matchingGroup).toBeUndefined();
     expect(rows.find(x => x.primaryKey === '1#Dub#3')?.matchingStatus).toBe(5);
     expect(rows.find(x => x.primaryKey === '1#Dub#3')?.matchingGroup).toBe('1#Dub');
+    expect((rows.find(x => x.primaryKey === '1#Dub#3') as Record<string, unknown> | undefined)?.matchingPerformedAttempts).toBe(3);
     expect(published.messages).toHaveLength(1);
     await performCommonChecks(table);
   });
