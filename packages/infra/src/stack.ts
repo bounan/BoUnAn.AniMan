@@ -93,34 +93,56 @@ export class AniManCdkStack extends cfn.Stack {
       ...indexCapacities,
     };
 
-    const dwnSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
-      indexName: RequiredIndex.DownloadStatusKey,
+    // const dwnSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
+    //   indexName: RequiredIndex.DownloadStatusKey,
+    //   partitionKey: { name: 'status', type: dynamodb.AttributeType.NUMBER },
+    //   sortKey: { name: 'sortKey', type: dynamodb.AttributeType.STRING },
+    //   projectionType: dynamodb.ProjectionType.INCLUDE,
+    //   nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'downloadPerformedAttempts'] as (keyof VideoEntity)[],
+    //   ...indexCapacities,
+    // };
+
+    // const matcherSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
+    //   indexName: RequiredIndex.MatcherStatusKey,
+    //   partitionKey: { name: 'matchingStatus', type: dynamodb.AttributeType.NUMBER },
+    //   sortKey: { name: 'matchingGroup', type: dynamodb.AttributeType.STRING },
+    //   projectionType: dynamodb.ProjectionType.INCLUDE,
+    //   nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'matchingPerformedAttempts'] as (keyof VideoEntity)[],
+    //   ...indexCapacities,
+    // };
+
+    const dwnSecondaryIndexOld: dynamodb.GlobalSecondaryIndexProps = {
+      indexName: RequiredIndex.DownloadStatusKeyOld,
       partitionKey: { name: 'status', type: dynamodb.AttributeType.NUMBER },
       sortKey: { name: 'sortKey', type: dynamodb.AttributeType.STRING },
       projectionType: dynamodb.ProjectionType.INCLUDE,
-      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'downloadPerformedAttempts'] as (keyof VideoEntity)[],
+      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'] as (keyof VideoEntity)[],
       ...indexCapacities,
     };
 
-    const matcherSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
-      indexName: RequiredIndex.MatcherStatusKey,
+    const matcherSecondaryIndexOld: dynamodb.GlobalSecondaryIndexProps = {
+      indexName: RequiredIndex.MatcherStatusKeyOld,
       partitionKey: { name: 'matchingStatus', type: dynamodb.AttributeType.NUMBER },
       sortKey: { name: 'matchingGroup', type: dynamodb.AttributeType.STRING },
       projectionType: dynamodb.ProjectionType.INCLUDE,
-      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'matchingPerformedAttempts'] as (keyof VideoEntity)[],
+      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt'] as (keyof VideoEntity)[],
       ...indexCapacities,
     };
 
     filesTable.addGlobalSecondaryIndex(animeKeySecondaryIndex);
-    filesTable.addGlobalSecondaryIndex(dwnSecondaryIndex);
-    filesTable.addGlobalSecondaryIndex(matcherSecondaryIndex);
+    // filesTable.addGlobalSecondaryIndex(dwnSecondaryIndex);
+    // filesTable.addGlobalSecondaryIndex(matcherSecondaryIndex);
+    filesTable.addGlobalSecondaryIndex(dwnSecondaryIndexOld);
+    filesTable.addGlobalSecondaryIndex(matcherSecondaryIndexOld);
 
     return {
       table: filesTable,
       indexes: {
         [RequiredIndex.VideoKey]: animeKeySecondaryIndex,
-        [RequiredIndex.DownloadStatusKey]: dwnSecondaryIndex,
-        [RequiredIndex.MatcherStatusKey]: matcherSecondaryIndex,
+        // [RequiredIndex.DownloadStatusKey]: dwnSecondaryIndex,
+        // [RequiredIndex.MatcherStatusKey]: matcherSecondaryIndex,
+        [RequiredIndex.DownloadStatusKeyOld]: dwnSecondaryIndexOld,
+        [RequiredIndex.MatcherStatusKeyOld]: matcherSecondaryIndexOld,
       },
     };
   }
@@ -173,8 +195,8 @@ export class AniManCdkStack extends cfn.Stack {
       database: {
         tableName: filesTable.tableName,
         animeKeyIndexName: indexes[RequiredIndex.VideoKey].indexName,
-        secondaryIndexName: indexes[RequiredIndex.DownloadStatusKey].indexName,
-        matcherSecondaryIndexName: indexes[RequiredIndex.MatcherStatusKey].indexName,
+        secondaryIndexName: indexes[RequiredIndex.DownloadStatusKeyOld].indexName,
+        matcherSecondaryIndexName: indexes[RequiredIndex.DownloadStatusKeyOld].indexName,
       },
       topics: {
         videoRegisteredTopicArn: topics[RequiredTopic.VideoRegistered].topicArn,
@@ -268,6 +290,8 @@ enum RequiredTopic {
 
 enum RequiredIndex {
   VideoKey = 'AnimeKey-Episode-index_2',
-  DownloadStatusKey = 'Status-SortKey-index_2',
-  MatcherStatusKey = 'Matcher-CreatedAt-index_3',
+  DownloadStatusKeyOld = 'Status-SortKey-index_2',
+  MatcherStatusKeyOld = 'Matcher-CreatedAt-index_3',
+  // DownloadStatusKey = 'Status-SortKey-index',
+  // MatcherStatusKey = 'Matcher-CreatedAt-index',
 }
