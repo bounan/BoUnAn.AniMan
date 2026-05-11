@@ -67,7 +67,7 @@ describe('packages/app/src/handlers/get-anime/handler.ts', () => {
       .rejects
       .toThrow('Invalid request');
 
-    expect(initConfigMock).toHaveBeenCalledTimes(1);
+    expect(initConfigMock).not.toHaveBeenCalled();
     expect(retryMock).not.toHaveBeenCalled();
   });
 

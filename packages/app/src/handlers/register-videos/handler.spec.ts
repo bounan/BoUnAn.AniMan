@@ -41,7 +41,7 @@ describe('packages/app/src/handlers/register-videos/handler.ts', () => {
 
     await expect(module.handler({ items: [] }, null as never, null as never)).rejects.toThrow('Invalid request');
 
-    expect(initConfigMock).toHaveBeenCalledTimes(1);
+    expect(initConfigMock).not.toHaveBeenCalled();
     expect(retryMock).not.toHaveBeenCalled();
     expect(getExistingVideosMock).not.toHaveBeenCalled();
   });

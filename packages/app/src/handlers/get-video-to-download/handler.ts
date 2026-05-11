@@ -14,9 +14,10 @@ const process = async (): Promise<DownloaderResponse> => {
   logger.info('Video to download', { videoToDownload });
 
   return { videoKey: videoToDownload };
-}
+};
 
 export const handler: Handler<undefined, DownloaderResponse> = async () => {
   await initConfig();
+
   return retry(async () => await process(), 3);
 };

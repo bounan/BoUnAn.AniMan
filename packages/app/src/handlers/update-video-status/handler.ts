@@ -10,8 +10,7 @@ import { sendVideoDownloadedNotification } from './sns-client';
 
 const logger = createLogger('handlers/update-video-status');
 
-
-const markVideo = async (request: DownloaderResultRequest): Promise<VideoEntity> => {
+const process = async (request: DownloaderResultRequest): Promise<VideoEntity> => {
   if (request.messageId) {
     logger.info('Video downloaded');
     return markVideoDownloaded(request.videoKey, request.messageId);
@@ -33,12 +32,12 @@ const notify = async (request: DownloaderResultRequest, videoEntity: VideoEntity
   logger.info('Video downloaded notification sent');
 };
 
-const process = async (request: DownloaderResultRequest): Promise<void> => {
-  const videoEntity = await markVideo(request);
-  await notify(request, videoEntity);
-}
-
 export const handler: Handler<DownloaderResultRequest, void> = async (request) => {
+  logger.info('Request', { request });
   await initConfig();
-  return retry(async () => await process(request), 3);
+
+  return retry(async () => {
+    const videoEntity = await process(request);
+    await notify(request, videoEntity);
+  }, 3);
 };

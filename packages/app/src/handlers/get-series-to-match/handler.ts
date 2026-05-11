@@ -14,9 +14,10 @@ const process = async (): Promise<MatcherResponse> => {
   logger.info('Episodes to match', { episodes });
 
   return { videosToMatch: episodes };
-}
+};
 
 export const handler: Handler<undefined, MatcherResponse> = async () => {
   await initConfig();
+
   return retry(async () => await process(), 3);
 };

@@ -1,6 +1,6 @@
 ﻿import type { Handler } from 'aws-lambda/handler';
 
-import type { BotRequest, BotResponse } from '../../../../../third-party/common/ts/interfaces';
+import type { BotRequest, BotResponse, VideoKey } from '../../../../../third-party/common/ts/interfaces';
 import { createLogger } from '../../../../../third-party/common/ts/runtime/logger';
 import { retry } from '../../../../../third-party/common/ts/runtime/retry';
 import { getEpisodes } from '../../api-clients/loan-api-client';
@@ -13,11 +13,27 @@ import { sendVideoRegisteredNotification } from './sns-client';
 
 const logger = createLogger('handlers/get-anime');
 
-const addAnime = async ({ videoKey }: BotRequest): Promise<VideoStatusNum> => {
+type ProcessResult = {
+  responseForBot: BotResponse;
+  registeredVideosForNotification: VideoKey[];
+};
+
+const validateRequest = (request: BotRequest): void => {
+  if (!request.videoKey.myAnimeListId
+    || !request.videoKey.dub
+    || request.videoKey.episode === null) {
+    throw new Error('Invalid request: ' + JSON.stringify(request));
+  }
+};
+
+const addAnime = async ({ videoKey }: BotRequest): Promise<{
+  status: VideoStatusNum;
+  registeredVideos: VideoKey[]
+}> => {
   const dubEpisodes = await getEpisodes(videoKey.myAnimeListId, videoKey.dub);
   if (dubEpisodes.length === 0) {
     logger.warn('Video not available', { videoKey });
-    return VideoStatusNum.NotAvailable;
+    return { status: VideoStatusNum.NotAvailable, registeredVideos: [] };
   }
 
   const registeredEpisodes = await getRegisteredEpisodes(videoKey.myAnimeListId, videoKey.dub);
@@ -32,13 +48,10 @@ const addAnime = async ({ videoKey }: BotRequest): Promise<VideoStatusNum> => {
   await increasePriority(videoKey);
   logger.info('Priority increased for requested video');
 
-  await sendVideoRegisteredNotification(videosToRegister);
-  logger.info('Video registered notification sent', { videosToRegister });
+  return { status: VideoStatusNum.Pending, registeredVideos: videosToRegister };
+};
 
-  return VideoStatusNum.Pending;
-}
-
-const process = async (request: BotRequest): Promise<BotResponse> => {
+const process = async (request: BotRequest): Promise<ProcessResult> => {
   const video = await getAnimeForUser(request.videoKey);
   logger.info('Video', { video });
 
@@ -52,7 +65,7 @@ const process = async (request: BotRequest): Promise<BotResponse> => {
         publishingDetails: video.publishingDetails,
       };
       logger.info('Returning video as is', { response });
-      return response;
+      return { responseForBot: response, registeredVideosForNotification: [] };
     }
 
     case VideoStatusNum.Pending:
@@ -60,35 +73,53 @@ const process = async (request: BotRequest): Promise<BotResponse> => {
       logger.info('Returning video as pending or downloading');
       await increasePriority(request.videoKey);
       return {
-        status: videoStatusToStr(video.status),
-        messageId: undefined,
-        scenes: undefined,
-        publishingDetails: undefined,
+        responseForBot: {
+          status: videoStatusToStr(video.status),
+          messageId: undefined,
+          scenes: undefined,
+          publishingDetails: undefined,
+        },
+        registeredVideosForNotification: [],
       };
     }
 
     case undefined: {
       logger.info('Adding anime');
-      const status = await addAnime(request);
+      const addAnimeResult = await addAnime(request);
       return {
-        status: videoStatusToStr(status),
-        messageId: undefined,
-        scenes: undefined,
-        publishingDetails: undefined,
+        responseForBot: {
+          status: videoStatusToStr(addAnimeResult.status),
+          messageId: undefined,
+          scenes: undefined,
+          publishingDetails: undefined,
+        },
+        registeredVideosForNotification: addAnimeResult.registeredVideos,
       };
     }
 
     default:
       throw new RangeError('Incorrect status');
   }
-}
+};
 
-export const handler: Handler<BotRequest, BotResponse> = async (request) => {
-  await initConfig();
-
-  if (!request.videoKey.myAnimeListId || !request.videoKey.dub || request.videoKey.episode === null) {
-    throw new Error('Invalid request: ' + JSON.stringify(request));
+const notify = async (result: ProcessResult): Promise<void> => {
+  if (result.registeredVideosForNotification.length === 0) {
+    logger.info('No videos registered, skipping notification');
+    return;
   }
 
-  return retry(async () => await process(request), 3);
+  await sendVideoRegisteredNotification(result.registeredVideosForNotification);
+  logger.info('Video registered notification sent', { videosToRegister: result.registeredVideosForNotification });
+};
+
+export const handler: Handler<BotRequest, BotResponse> = async (request) => {
+  logger.info('Request', { request });
+  validateRequest(request);
+  await initConfig();
+
+  return retry(async () => {
+    const result = await process(request);
+    await notify(result);
+    return result.responseForBot;
+  }, 3);
 };

@@ -15,10 +15,11 @@ const process = async (request: PublisherResultRequest): Promise<void> => {
   }
 
   logger.info('Publishing details saved');
-}
+};
 
 export const handler: Handler<PublisherResultRequest, void> = async (request) => {
-  await initConfig();
   logger.info('Request', { request });
+  await initConfig();
+
   return retry(async () => await process(request), 3);
 };
