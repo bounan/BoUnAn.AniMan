@@ -175,7 +175,7 @@ export class AniManCdkStack extends cfn.Stack {
         tableName: filesTable.tableName,
         animeKeyIndexName: indexes[RequiredIndex.VideoKey].indexName,
         secondaryIndexName: indexes[RequiredIndex.DownloadStatusKey].indexName,
-        matcherSecondaryIndexName: indexes[RequiredIndex.DownloadStatusKey].indexName,
+        matcherSecondaryIndexName: indexes[RequiredIndex.MatcherStatusKey].indexName,
       },
       topics: {
         videoRegisteredTopicArn: topics[RequiredTopic.VideoRegistered].topicArn,
