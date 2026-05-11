@@ -14,6 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
 
+    services:
+      dynamodb-local:
+        image: amazon/dynamodb-local:latest@sha256:d89f8fcc6b1a39cb35976c248ed42a28c66ae00dc043099210f5571e42648ab4
+        ports:
+          - 8001:8000
+
     steps:
       - uses: actions/checkout@v6.0.2
         with:
