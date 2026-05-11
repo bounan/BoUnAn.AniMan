@@ -51,6 +51,13 @@ describe('packages/app/src/shared/repository.ts', () => {
     expect(repository.getAnimeKey(7, 'Dub')).toBe('7#Dub');
   });
 
+  it('returns undefined downloader key for non-pending statuses', async () => {
+    const repository = await import('./repository');
+    const { VideoStatusNum } = await import('../models/video-status-num');
+
+    expect(repository.getDownloaderKey(VideoStatusNum.Downloaded, false, '2026-01-01T00:00:00.000Z', 1)).toBeUndefined();
+  });
+
   it('batches inserts in groups of 25 and sends all commands', async () => {
     sendMock.mockResolvedValue({});
 

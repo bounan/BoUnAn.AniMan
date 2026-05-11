@@ -90,4 +90,23 @@ describe('packages/app/src/handlers/register-videos/repository.ts', () => {
       { myAnimeListId: 1, dub: 'Dub', episode: 1 },
     ])).resolves.toEqual([]);
   });
+
+  it('returns no existing videos when batch response omits Responses', async () => {
+    sendMock.mockResolvedValueOnce({});
+
+    const configModule = await import('../../config/config');
+    Object.defineProperty(configModule.config, 'value', {
+      configurable: true,
+      get: () => ({
+        database: {
+          tableName: 'videos',
+        },
+      }),
+    });
+
+    const module = await import('./repository');
+    await expect(module.getExistingVideos([
+      { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+    ])).resolves.toEqual([]);
+  });
 });

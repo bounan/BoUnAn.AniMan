@@ -19,7 +19,7 @@ export const getAnimeKey = (myAnimeListId: number, dub: string): string => {
   return `${myAnimeListId}#${dub}`;
 }
 
-const getDownloaderKey = (
+export const getDownloaderKey = (
   status: VideoStatusNum,
   hasSubscriber: boolean,
   createdAt: string,

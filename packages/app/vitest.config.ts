@@ -16,7 +16,7 @@ export default defineConfig({
         statements: 95,
       },
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.spec.ts', 'src/local-runner.ts', 'src/handlers/**/handler.ts'],
+      exclude: ['src/local-runner.ts'],
     },
   },
 });
