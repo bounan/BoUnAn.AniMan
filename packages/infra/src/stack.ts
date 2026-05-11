@@ -93,14 +93,14 @@ export class AniManCdkStack extends cfn.Stack {
       ...indexCapacities,
     };
 
-    // const dwnSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
-    //   indexName: RequiredIndex.DownloadStatusKey,
-    //   partitionKey: { name: 'status', type: dynamodb.AttributeType.NUMBER },
-    //   sortKey: { name: 'sortKey', type: dynamodb.AttributeType.STRING },
-    //   projectionType: dynamodb.ProjectionType.INCLUDE,
-    //   nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'downloadPerformedAttempts'] as (keyof VideoEntity)[],
-    //   ...indexCapacities,
-    // };
+    const dwnSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
+      indexName: RequiredIndex.DownloadStatusKey,
+      partitionKey: { name: 'status', type: dynamodb.AttributeType.NUMBER },
+      sortKey: { name: 'sortKey', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.INCLUDE,
+      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'downloadPerformedAttempts'] as (keyof VideoEntity)[],
+      ...indexCapacities,
+    };
 
     // const matcherSecondaryIndex: dynamodb.GlobalSecondaryIndexProps = {
     //   indexName: RequiredIndex.MatcherStatusKey,
@@ -130,7 +130,7 @@ export class AniManCdkStack extends cfn.Stack {
     };
 
     filesTable.addGlobalSecondaryIndex(animeKeySecondaryIndex);
-    // filesTable.addGlobalSecondaryIndex(dwnSecondaryIndex);
+    filesTable.addGlobalSecondaryIndex(dwnSecondaryIndex);
     // filesTable.addGlobalSecondaryIndex(matcherSecondaryIndex);
     filesTable.addGlobalSecondaryIndex(dwnSecondaryIndexOld);
     filesTable.addGlobalSecondaryIndex(matcherSecondaryIndexOld);
@@ -139,7 +139,7 @@ export class AniManCdkStack extends cfn.Stack {
       table: filesTable,
       indexes: {
         [RequiredIndex.VideoKey]: animeKeySecondaryIndex,
-        // [RequiredIndex.DownloadStatusKey]: dwnSecondaryIndex,
+        [RequiredIndex.DownloadStatusKey]: dwnSecondaryIndex,
         // [RequiredIndex.MatcherStatusKey]: matcherSecondaryIndex,
         [RequiredIndex.DownloadStatusKeyOld]: dwnSecondaryIndexOld,
         [RequiredIndex.MatcherStatusKeyOld]: matcherSecondaryIndexOld,
@@ -292,6 +292,6 @@ enum RequiredIndex {
   VideoKey = 'AnimeKey-Episode-index_2',
   DownloadStatusKeyOld = 'Status-SortKey-index_2',
   MatcherStatusKeyOld = 'Matcher-CreatedAt-index_3',
-  // DownloadStatusKey = 'Status-SortKey-index',
+  DownloadStatusKey = 'Status-SortKey-index',
   // MatcherStatusKey = 'Matcher-CreatedAt-index',
 }
