@@ -3,6 +3,7 @@ import * as cw from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { LoggingFormat } from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
@@ -217,6 +218,7 @@ export class AniManCdkStack extends cfn.Stack {
         handler: 'handler',
         logGroup,
         timeout: cfn.Duration.seconds(30),
+        loggingFormat: LoggingFormat.JSON,
       });
 
       filesTable.grantReadWriteData(func);
