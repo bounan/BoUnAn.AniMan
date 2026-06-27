@@ -27,7 +27,7 @@ export class AniManCdkStack extends cfn.Stack {
       throw new Error('Mock handlers can only be used in eu-central-1');
     }
 
-    const config = getConfig(this, '/bounan/animan/deploy-config');
+    const config = getConfig(this, '/bounan/animan/deploy-config/');
 
     const loanApiFunction = lambda.Function.fromFunctionAttributes(
       this, 'LoanApiFunction', {

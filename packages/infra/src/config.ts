@@ -1,9 +1,7 @@
 ﻿import type { Stack } from 'aws-cdk-lib';
-import * as ssm from 'aws-cdk-lib/aws-ssm';
 
+import { getSsmValue } from '../../../third-party/common/ts/cdk/helpers';
 import configFile from './configuration.json';
-
-const rawConfig = configFile as Partial<Record<keyof Config, string | number>>;
 
 export interface Config {
   alertEmail: string;
@@ -14,22 +12,11 @@ export interface Config {
   matchingRetryDelayMs: number;
 }
 
-const getValue = (stack: Stack, prefix: string, key: keyof Config): string => {
-  const configuredValue = rawConfig[key];
-  return configuredValue !== undefined && configuredValue !== ''
-    ? String(configuredValue)
-    : ssm.StringParameter.valueForStringParameter(stack, `${prefix}/${key}`);
-}
-
-const getNumberValue = (stack: Stack, prefix: string, key: keyof Config): number => {
-  return Number(getValue(stack, prefix, key));
-};
-
 export const getConfig = (stack: Stack, prefix: string): Config => ({
-  alertEmail: getValue(stack, prefix, 'alertEmail'),
-  loanApiFunctionArn: getValue(stack, prefix, 'loanApiFunctionArn'),
-  maxDownloadFailedAttempts: getNumberValue(stack, prefix, 'maxDownloadFailedAttempts'),
-  downloadRetryDelayMs: getNumberValue(stack, prefix, 'downloadRetryDelayMs'),
-  maxMatchingFailedAttempts: getNumberValue(stack, prefix, 'maxMatchingFailedAttempts'),
-  matchingRetryDelayMs: getNumberValue(stack, prefix, 'matchingRetryDelayMs'),
+  alertEmail: getSsmValue(stack, prefix, 'alertEmail', configFile),
+  loanApiFunctionArn: getSsmValue(stack, prefix, 'loanApiFunctionArn', configFile),
+  maxDownloadFailedAttempts: Number(getSsmValue(stack, prefix, 'maxDownloadFailedAttempts', configFile)),
+  downloadRetryDelayMs: Number(getSsmValue(stack, prefix, 'downloadRetryDelayMs', configFile)),
+  maxMatchingFailedAttempts: Number(getSsmValue(stack, prefix, 'maxMatchingFailedAttempts', configFile)),
+  matchingRetryDelayMs: Number(getSsmValue(stack, prefix, 'matchingRetryDelayMs', configFile)),
 });
