@@ -230,6 +230,7 @@ export class AniManCdkStack extends cfn.Stack {
     topics[RequiredTopic.VideoRegistered].grantPublish(functions[LambdaHandler.GetAnime]);
     topics[RequiredTopic.VideoRegistered].grantPublish(functions[LambdaHandler.RegisterVideos]);
     topics[RequiredTopic.VideoDownloaded].grantPublish(functions[LambdaHandler.UpdateVideoStatus]);
+    topics[RequiredTopic.VideoDownloaded].grantPublish(functions[LambdaHandler.ResendDownloadedNotifications]);
     topics[RequiredTopic.SceneRecognised].grantPublish(functions[LambdaHandler.UpdateVideoStatus]);
     topics[RequiredTopic.SceneRecognised].grantPublish(functions[LambdaHandler.UpdateVideoScenes]);
 
@@ -260,6 +261,7 @@ enum LambdaHandler {
   UpdateVideoScenes = 'update-video-scenes',
   UpdatePublishingDetails = 'update-publishing-details',
   RegisterVideos = 'register-videos',
+  ResendDownloadedNotifications = 'resend-downloaded-notifications',
 }
 
 enum RequiredTopic {
