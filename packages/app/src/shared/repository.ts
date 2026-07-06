@@ -21,6 +21,11 @@ export const getAnimeKey = (myAnimeListId: number, dub: string): string => {
   return `${myAnimeListId}#${dub}`;
 }
 
+const getMatchingGroup = (myAnimeListId: number, dub: string, episode: number): string | undefined => {
+  // Skip a matching group around a lone first video. Matcher cannot recognize a single video anyway.
+  return episode > 1 ? getAnimeKey(myAnimeListId, dub) : undefined;
+}
+
 export const getDownloaderKey = (
   status: VideoStatusNum,
   hasSubscriber: boolean,
@@ -37,7 +42,7 @@ export const insertVideo = async (videos: VideoKey[]): Promise<void> => {
     primaryKey: getVideoKey(video),
     animeKey: getAnimeKey(video.myAnimeListId, video.dub),
     sortKey: getDownloaderKey(VideoStatusNum.Pending, false, new Date().toISOString(), video.episode),
-    matchingGroup: getAnimeKey(video.myAnimeListId, video.dub),
+    matchingGroup: getMatchingGroup(video.myAnimeListId, video.dub, video.episode),
     myAnimeListId: video.myAnimeListId,
     dub: video.dub,
     episode: video.episode,

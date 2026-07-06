@@ -88,6 +88,34 @@ describe('packages/app/src/shared/repository.ts', () => {
     expect(firstBatch.RequestItems.videos[0].PutRequest.Item.primaryKey).toBe('1#Dub#1');
   });
 
+  it('skips matchingGroup for episode 0 and 1, but keeps it for later episodes', async () => {
+    sendMock.mockResolvedValue({});
+
+    const configModule = await import('../config/config');
+    Object.defineProperty(configModule.config, 'value', {
+      configurable: true,
+      get: () => ({
+        database: { tableName: 'videos' },
+      }),
+    });
+
+    const repository = await import('./repository');
+    await repository.insertVideo([
+      { myAnimeListId: 1, dub: 'Dub', episode: 0 },
+      { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+      { myAnimeListId: 1, dub: 'Dub', episode: 2 },
+    ]);
+
+    const batch = batchWriteInput[0] as {
+      RequestItems: Record<string, { PutRequest: { Item: { episode: number; matchingGroup?: string } } }[]>;
+    };
+    const items = batch.RequestItems.videos.map(x => x.PutRequest.Item);
+
+    expect(items.find(x => x.episode === 0)?.matchingGroup).toBeUndefined();
+    expect(items.find(x => x.episode === 1)?.matchingGroup).toBeUndefined();
+    expect(items.find(x => x.episode === 2)?.matchingGroup).toBe('1#Dub');
+  });
+
   it('updates the subscriber priority sort key', async () => {
     sendMock.mockResolvedValue({});
 

@@ -65,7 +65,21 @@ describe('register-videos', () => {
 
     const rows = await table.getAllRecords();
     expect(rows.map(x => x.primaryKey)).toEqual(['1#Dub#1', '1#Dub#2']);
+    expect(rows.find(x => x.primaryKey === '1#Dub#2')?.matchingGroup).toBe('1#Dub');
     expect(published.messages).toHaveLength(1);
     await performCommonChecks(table);
+  });
+
+  it('REQ-RV-04: does not assign matching group to episode 0 or 1', async ({ table }) => {
+    await handler({
+      items: [
+        { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 0 } },
+        { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 } },
+      ],
+    }, null as never, null as never);
+
+    const rows = await table.getAllRecords();
+    expect(rows.find(x => x.primaryKey === '1#Dub#0')?.matchingGroup).toBeUndefined();
+    expect(rows.find(x => x.primaryKey === '1#Dub#1')?.matchingGroup).toBeUndefined();
   });
 });
