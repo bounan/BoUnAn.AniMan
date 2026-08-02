@@ -11,8 +11,7 @@ describe('DynamoDB integration fixture', () => {
       const record = { id: 'example', value: 'stored' };
       await table.put(record);
       await expect(table.getAll()).resolves.toEqual([record]);
-    }
-    finally {
+    } finally {
       await table.drop();
     }
   });

@@ -8,13 +8,13 @@ const onRegistered = async (message: VideoRegisteredNotification) => {
   await videoRegistered({ Records: [{ Sns: { Message: JSON.stringify(message) } }] });
 
   console.log('Message processed');
-}
+};
 
 const main = async () => {
   const animes: [number, string][] = [
     [59730, 'РуАниме / DEEP'],
     [801, 'MC Entertainment'],
-  ]
+  ];
 
   console.log('TEST: Episodes should be registered on the first run');
   await onRegistered({
@@ -136,6 +136,6 @@ const main = async () => {
   console.log('TEST: On Schedule');
   await onSchedule({} as never);
   console.warn('Expected: No errors\n\n');
-}
+};
 
 main();

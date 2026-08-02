@@ -8,7 +8,7 @@ const logger = createLogger('@app/handlers/on-schedule/handler');
 const process = async (): Promise<void> => {
   logger.info('Processing scheduled work');
   // TODO
-}
+};
 
 export const handler = async (event: EventBridgeEvent<never, never>): Promise<void> => {
   logger.info('Processing event', { event });

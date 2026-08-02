@@ -1,4 +1,4 @@
-import { http, HttpResponse, type JsonBodyType } from 'msw';
+import { HttpResponse, http, type JsonBodyType } from 'msw';
 import { setupServer } from 'msw/node';
 
 export class HttpInterceptor implements Disposable {

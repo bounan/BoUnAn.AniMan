@@ -3,14 +3,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getAnimeKey, getEpisodes } from './repository';
 
-const { sendMock, getInputMock } = await vi.hoisted(
-  () => import('../test/mocks/aws-sdk-lib-dynamodb-mock')
-    .then(m => m.injectLibDynamoDbMocks()));
+const { sendMock, getInputMock } = await vi.hoisted(() =>
+  import('../test/mocks/aws-sdk-lib-dynamodb-mock').then((m) => m.injectLibDynamoDbMocks()),
+);
 
 vi.mock('@aws-sdk/client-dynamodb', () => {
   class DynamoDBClient {
-    constructor() {
-    }
+    constructor() {}
   }
 
   return { DynamoDBClient };
@@ -81,9 +80,7 @@ describe('repository', () => {
     it('propagates DynamoDB errors', async () => {
       sendMock.mockRejectedValueOnce(new Error('ddb down'));
 
-      await expect(
-        getEpisodes({ myAnimeListId: 1, dub: 'true' }),
-      ).rejects.toThrow('ddb down');
+      await expect(getEpisodes({ myAnimeListId: 1, dub: 'true' })).rejects.toThrow('ddb down');
 
       expect(sendMock).toHaveBeenCalledTimes(1);
     });

@@ -1,7 +1,7 @@
 interface DatabaseConfig {
-    tableName: string;
+  tableName: string;
 }
 
 export interface Config {
-    database: DatabaseConfig;
+  database: DatabaseConfig;
 }

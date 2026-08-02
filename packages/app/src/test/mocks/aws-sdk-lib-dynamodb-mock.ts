@@ -29,7 +29,9 @@ export const injectLibDynamoDbMocks = () => {
     }
 
     return {
-      PutCommand, UpdateCommand, GetCommand,
+      PutCommand,
+      UpdateCommand,
+      GetCommand,
       DynamoDBDocumentClient: {
         from: () => ({
           send: sendMock,
@@ -39,4 +41,4 @@ export const injectLibDynamoDbMocks = () => {
   });
 
   return { putInputMock, updateInputMock, getInputMock, sendMock };
-}
+};
