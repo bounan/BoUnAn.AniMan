@@ -14,6 +14,6 @@ export const videoStatusToStr = (status: VideoStatusNum): VideoStatusStr => {
     case VideoStatusNum.NotAvailable:
       return 'NotAvailable';
     default:
-      throw new Error('Unknown status: ' + status);
+      throw new Error(`Unknown status: ${status}`);
   }
 };

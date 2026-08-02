@@ -12,12 +12,11 @@ const logger = createLogger('handlers/register-videos');
 
 const validateRequest = (request: RegisterVideosRequest): void => {
   if (
-    !request ||
-    !request.items ||
+    !request?.items ||
     request.items.length === 0 ||
     request.items.some((x) => !x.videoKey?.myAnimeListId || !x.videoKey?.dub || x.videoKey?.episode === undefined)
   ) {
-    throw new Error('Invalid request: ' + JSON.stringify(request));
+    throw new Error(`Invalid request: ${JSON.stringify(request)}`);
   }
 };
 

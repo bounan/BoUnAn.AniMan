@@ -18,7 +18,7 @@ const getDownloadedVideosOrThrow = async (keys: (VideoKey | AnimeKey)[]): Promis
   for (const key of keys) {
     const videosForKey = await getVideosForKey(key);
     if (videosForKey.length === 0 || videosForKey.some((video) => video.status !== VideoStatusNum.Downloaded)) {
-      throw new Error('Requested key was not found as downloaded: ' + JSON.stringify(key));
+      throw new Error(`Requested key was not found as downloaded: ${JSON.stringify(key)}`);
     }
 
     videos.push(...videosForKey);

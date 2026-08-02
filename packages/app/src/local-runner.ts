@@ -1,4 +1,4 @@
-﻿/* eslint @typescript-eslint/no-explicit-any: 0 */
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 
 import { createLogger } from '../../../third-party/common/ts/runtime/logger';
 import { handler as getAnime } from './handlers/get-anime/handler';
@@ -22,15 +22,15 @@ const main = async () => {
         episode: episode,
       },
     },
-    null as any,
-    null as any,
+    null as never,
+    null as never,
   );
   logger.info('getAnime result', { result: s1 });
 
-  const s2 = await getSeriesToMatch(null as any, null as any, null as any);
+  const s2 = await getSeriesToMatch(null as never, null as never, null as never);
   logger.info('getSeriesToMatch result', { result: s2 });
 
-  const s3 = await getVideoToDownload(null as any, null as any, null as any);
+  const s3 = await getVideoToDownload(null as never, null as never, null as never);
   logger.info('getVideoToDownload result', { result: s3 });
 
   const s4 = await updateVideoScenes(
@@ -70,8 +70,8 @@ const main = async () => {
         },
       ],
     },
-    null as any,
-    null as any,
+    null as never,
+    null as never,
   );
   logger.info('updateVideoScenes result', { result: s4 });
 
@@ -84,8 +84,8 @@ const main = async () => {
       },
       messageId: 1,
     },
-    null as any,
-    null as any,
+    null as never,
+    null as never,
   );
   logger.info('updateVideoStatus result', { result: s5 });
 
@@ -97,8 +97,8 @@ const main = async () => {
         episode: 7,
       },
     },
-    null as any,
-    null as any,
+    null as never,
+    null as never,
   );
   logger.info('getAnime result', { result: s6 });
 };

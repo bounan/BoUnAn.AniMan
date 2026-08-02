@@ -11,7 +11,7 @@ export const handler: Handler<BotRequest, BotResponse> = async (request) => {
   logger.info('Request', { request });
 
   if (!request.videoKey.myAnimeListId || !request.videoKey.dub || request.videoKey.episode === null) {
-    throw new Error('Invalid request: ' + JSON.stringify(request));
+    throw new Error(`Invalid request: ${JSON.stringify(request)}`);
   }
 
   if (request.videoKey.episode === 1) {

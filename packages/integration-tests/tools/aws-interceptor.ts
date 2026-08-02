@@ -26,7 +26,12 @@ export class AwsInterceptor implements Disposable {
         throw new Error(`Unexpected SSM command: ${command.constructor.name}`);
       }
 
-      const value = this.ssmResponses.get(command.input.Name!);
+      const { Name: parameterName } = command.input;
+      if (!parameterName) {
+        throw new Error('SSM command is missing a parameter name');
+      }
+
+      const value = this.ssmResponses.get(parameterName);
       if (!value) {
         throw new Error(`No SSM mock configured for ${command.input.Name}`);
       }
@@ -43,7 +48,12 @@ export class AwsInterceptor implements Disposable {
         throw new Error(`Unexpected Lambda command: ${command.constructor.name}`);
       }
 
-      const entry = this.lambdaResponses.get(command.input.FunctionName!);
+      const { FunctionName: functionName } = command.input;
+      if (!functionName) {
+        throw new Error('Lambda command is missing a function name');
+      }
+
+      const entry = this.lambdaResponses.get(functionName);
       if (!entry) {
         throw new Error(`No Lambda mock configured for ${command.input.FunctionName}`);
       }
@@ -63,7 +73,11 @@ export class AwsInterceptor implements Disposable {
         throw new Error(`Unexpected SNS command: ${command.constructor.name}`);
       }
 
-      const topicArn = command.input.TopicArn!;
+      const { TopicArn: topicArn } = command.input;
+      if (!topicArn) {
+        throw new Error('SNS command is missing a topic ARN');
+      }
+
       const messages = this.snsResponses.get(topicArn);
       if (!messages) {
         throw new Error(`No SNS mock configured for ${topicArn}`);
