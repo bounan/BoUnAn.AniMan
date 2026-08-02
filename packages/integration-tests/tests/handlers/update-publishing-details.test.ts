@@ -31,22 +31,26 @@ describe('update-publishing-details', () => {
       },
     );
 
-    await handler({
-      items: [
-        {
-          videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-          publishingDetails: { threadId: 10, messageId: 20 },
-        },
-        {
-          videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 2 },
-          publishingDetails: { threadId: 11, messageId: 21 },
-        },
-      ],
-    }, null as never, null as never);
+    await handler(
+      {
+        items: [
+          {
+            videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+            publishingDetails: { threadId: 10, messageId: 20 },
+          },
+          {
+            videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 2 },
+            publishingDetails: { threadId: 11, messageId: 21 },
+          },
+        ],
+      },
+      null as never,
+      null as never,
+    );
 
     const rows = await table.getAllRecords();
-    expect(rows.find(x => x.primaryKey === '1#Dub#1')?.publishingDetails).toEqual({ threadId: 10, messageId: 20 });
-    expect(rows.find(x => x.primaryKey === '1#Dub#2')?.publishingDetails).toEqual({ threadId: 11, messageId: 21 });
+    expect(rows.find((x) => x.primaryKey === '1#Dub#1')?.publishingDetails).toEqual({ threadId: 10, messageId: 20 });
+    expect(rows.find((x) => x.primaryKey === '1#Dub#2')?.publishingDetails).toEqual({ threadId: 11, messageId: 21 });
     await performCommonChecks(table);
   });
 });

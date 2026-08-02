@@ -22,10 +22,14 @@ describe('update-video-status', () => {
       publishingDetails: { threadId: 7, messageId: 8 },
     });
 
-    await handler({
-      videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-      messageId: 123,
-    }, null as never, null as never);
+    await handler(
+      {
+        videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+        messageId: 123,
+      },
+      null as never,
+      null as never,
+    );
 
     const row = (await table.getAllRecords())[0];
     expect(row.status).toBe(3);
@@ -52,9 +56,13 @@ describe('update-video-status', () => {
       downloadPerformedAttempts: 2,
     });
 
-    await handler({
-      videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 2 },
-    }, null as never, null as never);
+    await handler(
+      {
+        videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 2 },
+      },
+      null as never,
+      null as never,
+    );
 
     const row = (await table.getAllRecords())[0];
     expect(row.status).toBe(4);

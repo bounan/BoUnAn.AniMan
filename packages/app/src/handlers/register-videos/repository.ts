@@ -11,9 +11,9 @@ const TABLE_PRIMARY_KEY = 'primaryKey';
 const logger = createLogger('handlers/register-videos/repository');
 
 export const getExistingVideos = async (videoKeys: VideoKey[]): Promise<VideoKey[]> => {
-  const keyValuePairs = Object.fromEntries(videoKeys.map(x => [getVideoKey(x), x]));
+  const keyValuePairs = Object.fromEntries(videoKeys.map((x) => [getVideoKey(x), x]));
 
-  const keys = Object.keys(keyValuePairs).map(x => ({ [TABLE_PRIMARY_KEY]: x }));
+  const keys = Object.keys(keyValuePairs).map((x) => ({ [TABLE_PRIMARY_KEY]: x }));
   const chunks = splitToChunks(keys, GET_OPERATION_LIMIT);
 
   const foundPrimaryKeys: string[] = [];
@@ -29,11 +29,11 @@ export const getExistingVideos = async (videoKeys: VideoKey[]): Promise<VideoKey
 
     const response = await docClient.send(command);
     const chunkResult = response.Responses?.[config.value.database.tableName] ?? [];
-    const foundKeys = chunkResult.map(x => x[TABLE_PRIMARY_KEY]);
+    const foundKeys = chunkResult.map((x) => x[TABLE_PRIMARY_KEY]);
     logger.info('Found keys', { foundKeys });
 
     foundPrimaryKeys.push(...foundKeys);
   }
 
-  return foundPrimaryKeys.map(x => keyValuePairs[x]);
-}
+  return foundPrimaryKeys.map((x) => keyValuePairs[x]);
+};

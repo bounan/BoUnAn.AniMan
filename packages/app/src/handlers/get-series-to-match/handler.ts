@@ -8,7 +8,6 @@ import { getEpisodesToMatch } from './repository';
 
 const logger = createLogger('handlers/get-series-to-match');
 
-
 const process = async (): Promise<MatcherResponse> => {
   const episodes = await getEpisodesToMatch();
   logger.info('Episodes to match', { episodes });

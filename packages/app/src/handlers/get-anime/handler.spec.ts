@@ -63,9 +63,9 @@ describe('packages/app/src/handlers/get-anime/handler.ts', () => {
           },
         },
         null as never,
-        null as never))
-      .rejects
-      .toThrow('Invalid request');
+        null as never,
+      ),
+    ).rejects.toThrow('Invalid request');
 
     expect(initConfigMock).not.toHaveBeenCalled();
     expect(retryMock).not.toHaveBeenCalled();
@@ -144,7 +144,7 @@ describe('packages/app/src/handlers/get-anime/handler.ts', () => {
     getRegisteredEpisodesMock.mockResolvedValue([1]);
 
     const module = await import('./handler');
-    const result = await module.handler({ videoKey }, null as never, null as never) as BotResponse;
+    const result = (await module.handler({ videoKey }, null as never, null as never)) as BotResponse;
 
     expect(result.status).toBe('Pending');
     expect(insertVideoMock).toHaveBeenCalledTimes(1);

@@ -1,6 +1,5 @@
 ﻿import { fetchSsmValue } from '../../../../third-party/common/ts/runtime/ssm-client';
 
-
 interface LoanApiConfig {
   functionArn: string;
 }
@@ -34,8 +33,8 @@ export interface Config {
 let cachedConfig: Config | undefined;
 
 export const initConfig = async (): Promise<void> => {
-  cachedConfig = await fetchSsmValue('/bounan/animan/runtime-config') as Config;
-}
+  cachedConfig = (await fetchSsmValue('/bounan/animan/runtime-config')) as Config;
+};
 
 export const config = {
   get value() {
@@ -45,4 +44,4 @@ export const config = {
 
     return cachedConfig;
   },
-}
+};

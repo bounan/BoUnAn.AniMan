@@ -33,9 +33,7 @@ describe('packages/app/src/handlers/update-video-status/repository.ts', () => {
   });
 
   it('marks videos as downloaded and failed', async () => {
-    sendMock
-      .mockResolvedValueOnce({ Attributes: { status: 3 } })
-      .mockResolvedValueOnce({ Attributes: { status: 4 } });
+    sendMock.mockResolvedValueOnce({ Attributes: { status: 3 } }).mockResolvedValueOnce({ Attributes: { status: 4 } });
 
     const configModule = await import('../../config/config');
     Object.defineProperty(configModule.config, 'value', {
@@ -67,7 +65,9 @@ describe('packages/app/src/handlers/update-video-status/repository.ts', () => {
       ExpressionAttributeNames: Record<string, string>;
       ExpressionAttributeValues: Record<string, number | null | string>;
     };
-    expect(failedUpdate.UpdateExpression).toContain('#downloadPerformedAttempts = #downloadPerformedAttempts + :attemptIncrement');
+    expect(failedUpdate.UpdateExpression).toContain(
+      '#downloadPerformedAttempts = #downloadPerformedAttempts + :attemptIncrement',
+    );
     expect(failedUpdate.ExpressionAttributeNames['#downloadPerformedAttempts']).toBe('downloadPerformedAttempts');
     expect(failedUpdate.ExpressionAttributeValues[':attemptIncrement']).toBe(1);
   });

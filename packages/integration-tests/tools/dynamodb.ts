@@ -1,9 +1,4 @@
-import {
-  CreateTableCommand,
-  DeleteTableCommand,
-  DynamoDBClient,
-  waitUntilTableExists,
-} from '@aws-sdk/client-dynamodb';
+import { CreateTableCommand, DeleteTableCommand, DynamoDBClient, waitUntilTableExists } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 
 import { assert } from '../../../third-party/common/ts/runtime/assert';
@@ -35,10 +30,12 @@ export class DynamoDbTableFixture {
 
   async putRecords(...records: Record<string, unknown>[]): Promise<void> {
     for (const record of records) {
-      await this.client.send(new PutCommand({
-        TableName: this.tableName,
-        Item: record,
-      }));
+      await this.client.send(
+        new PutCommand({
+          TableName: this.tableName,
+          Item: record,
+        }),
+      );
     }
   }
 
@@ -60,9 +57,7 @@ export class DynamoDbTableFixture {
         { AttributeName: 'matchingStatus', AttributeType: 'N' },
         { AttributeName: 'matchingGroup', AttributeType: 'S' },
       ],
-      KeySchema: [
-        { AttributeName: 'primaryKey', KeyType: 'HASH' },
-      ],
+      KeySchema: [{ AttributeName: 'primaryKey', KeyType: 'HASH' }],
       GlobalSecondaryIndexes: [
         {
           IndexName: 'AnimeKey-Episode-index_2',

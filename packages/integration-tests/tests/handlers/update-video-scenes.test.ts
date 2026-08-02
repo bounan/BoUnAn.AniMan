@@ -64,16 +64,18 @@ describe('update-video-scenes', () => {
     await handler({ items }, null as never, null as never);
 
     const rows = await table.getAllRecords();
-    expect(rows.find(x => x.primaryKey === '1#Dub#1')).toMatchObject({
+    expect(rows.find((x) => x.primaryKey === '1#Dub#1')).toMatchObject({
       matchingStatus: 3,
       scenes: { opening: { start: 1, end: 2 } },
     });
-    expect(rows.find(x => x.primaryKey === '1#Dub#1')?.matchingGroup).toBeUndefined();
-    expect(rows.find(x => x.primaryKey === '1#Dub#2')?.matchingStatus).toBe(4);
-    expect(rows.find(x => x.primaryKey === '1#Dub#2')?.matchingGroup).toBeUndefined();
-    expect(rows.find(x => x.primaryKey === '1#Dub#3')?.matchingStatus).toBe(5);
-    expect(rows.find(x => x.primaryKey === '1#Dub#3')?.matchingGroup).toBe('1#Dub');
-    expect((rows.find(x => x.primaryKey === '1#Dub#3') as Record<string, unknown> | undefined)?.matchingPerformedAttempts).toBe(3);
+    expect(rows.find((x) => x.primaryKey === '1#Dub#1')?.matchingGroup).toBeUndefined();
+    expect(rows.find((x) => x.primaryKey === '1#Dub#2')?.matchingStatus).toBe(4);
+    expect(rows.find((x) => x.primaryKey === '1#Dub#2')?.matchingGroup).toBeUndefined();
+    expect(rows.find((x) => x.primaryKey === '1#Dub#3')?.matchingStatus).toBe(5);
+    expect(rows.find((x) => x.primaryKey === '1#Dub#3')?.matchingGroup).toBe('1#Dub');
+    expect(
+      (rows.find((x) => x.primaryKey === '1#Dub#3') as Record<string, unknown> | undefined)?.matchingPerformedAttempts,
+    ).toBe(3);
     expect(published.messages).toHaveLength(1);
     await performCommonChecks(table);
   });

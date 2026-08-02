@@ -3,7 +3,6 @@
 import type { DownloaderResultRequest } from '../../../../third-party/common/ts/interfaces';
 import { createLogger } from '../../../../third-party/common/ts/runtime/logger';
 
-
 const logger = createLogger('handlers-mocks/update-video-status');
 
 export const handler: Handler<DownloaderResultRequest, void> = async (request) => {

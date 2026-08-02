@@ -34,7 +34,7 @@ const validateAndParse = (request: string[]): RequestedKey[] => {
   assert(Array.isArray(request) && request.length > 0);
 
   const keys = request.map(parseKey);
-  assert(keys.every(key => !!key));
+  assert(keys.every((key) => !!key));
 
   return keys as RequestedKey[];
 };

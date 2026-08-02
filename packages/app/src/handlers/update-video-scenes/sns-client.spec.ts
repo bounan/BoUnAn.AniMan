@@ -24,10 +24,12 @@ describe('sendSceneRecognizedNotification', () => {
     });
 
     const module = await import('./sns-client');
-    const items = [{
-      videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-      scenes: { opening: { start: 1, end: 2 } },
-    }];
+    const items = [
+      {
+        videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+        scenes: { opening: { start: 1, end: 2 } },
+      },
+    ];
 
     await module.sendSceneRecognizedNotification(items);
 

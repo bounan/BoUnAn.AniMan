@@ -19,16 +19,16 @@ type ProcessResult = {
 };
 
 const validateRequest = (request: BotRequest): void => {
-  if (!request.videoKey.myAnimeListId
-    || !request.videoKey.dub
-    || request.videoKey.episode === null) {
+  if (!request.videoKey.myAnimeListId || !request.videoKey.dub || request.videoKey.episode === null) {
     throw new Error('Invalid request: ' + JSON.stringify(request));
   }
 };
 
-const addAnime = async ({ videoKey }: BotRequest): Promise<{
+const addAnime = async ({
+  videoKey,
+}: BotRequest): Promise<{
   status: VideoStatusNum;
-  registeredVideos: VideoKey[]
+  registeredVideos: VideoKey[];
 }> => {
   const dubEpisodes = await getEpisodes(videoKey.myAnimeListId, videoKey.dub);
   if (dubEpisodes.length === 0) {
@@ -37,9 +37,9 @@ const addAnime = async ({ videoKey }: BotRequest): Promise<{
   }
 
   const registeredEpisodes = await getRegisteredEpisodes(videoKey.myAnimeListId, videoKey.dub);
-  const episodesToRegister = dubEpisodes.filter(episode => !registeredEpisodes.includes(episode));
+  const episodesToRegister = dubEpisodes.filter((episode) => !registeredEpisodes.includes(episode));
 
-  const videosToRegister = episodesToRegister.map(episode => ({ ...videoKey, episode }));
+  const videosToRegister = episodesToRegister.map((episode) => ({ ...videoKey, episode }));
   logger.info('Videos to register', { videosToRegister });
 
   await insertVideo(videosToRegister);

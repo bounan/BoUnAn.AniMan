@@ -16,4 +16,4 @@ export const videoStatusToStr = (status: VideoStatusNum): VideoStatusStr => {
     default:
       throw new Error('Unknown status: ' + status);
   }
-}
+};

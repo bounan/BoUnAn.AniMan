@@ -11,11 +11,12 @@ import { sendVideoRegisteredNotification } from './sns-client';
 const logger = createLogger('handlers/register-videos');
 
 const validateRequest = (request: RegisterVideosRequest): void => {
-  if (!request || !request.items || request.items.length === 0
-    || request.items.some(x =>
-      !x.videoKey?.myAnimeListId
-      || !x.videoKey?.dub
-      || x.videoKey?.episode === undefined)) {
+  if (
+    !request ||
+    !request.items ||
+    request.items.length === 0 ||
+    request.items.some((x) => !x.videoKey?.myAnimeListId || !x.videoKey?.dub || x.videoKey?.episode === undefined)
+  ) {
     throw new Error('Invalid request: ' + JSON.stringify(request));
   }
 };
@@ -23,13 +24,15 @@ const validateRequest = (request: RegisterVideosRequest): void => {
 const process = async (request: RegisterVideosRequest): Promise<VideoKey[]> => {
   logger.info('Processing request', { request });
 
-  const existingVideos = await getExistingVideos(request.items.map(x => x.videoKey));
+  const existingVideos = await getExistingVideos(request.items.map((x) => x.videoKey));
   logger.info('Existing videos', { existingVideos });
 
   const videosToRegister = request.items
-    .map(x => x.videoKey)
-    .filter(x => !existingVideos
-      .some(y => y.myAnimeListId === x.myAnimeListId && y.dub === x.dub && y.episode === x.episode));
+    .map((x) => x.videoKey)
+    .filter(
+      (x) =>
+        !existingVideos.some((y) => y.myAnimeListId === x.myAnimeListId && y.dub === x.dub && y.episode === x.episode),
+    );
   logger.info('Videos to register', { videosToRegister });
   if (videosToRegister.length === 0) {
     logger.info('No videos to register');

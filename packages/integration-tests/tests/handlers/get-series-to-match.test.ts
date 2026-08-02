@@ -6,7 +6,7 @@ import { performCommonChecks } from '../../tools/custom-expectations';
 
 describe('get-series-to-match', () => {
   it('REQ-GSTM-01: returns empty when no pending group exists', async () => {
-    const response = await handler(undefined, null as never, null as never) as {
+    const response = (await handler(undefined, null as never, null as never)) as {
       videosToMatch: { myAnimeListId: number; dub: string; episode: number }[];
     };
     expect(response).toEqual({ videosToMatch: [] });
@@ -55,19 +55,21 @@ describe('get-series-to-match', () => {
       },
     );
 
-    const response = await handler(undefined, null as never, null as never) as {
+    const response = (await handler(undefined, null as never, null as never)) as {
       videosToMatch: { myAnimeListId: number; dub: string; episode: number }[];
     };
 
     expect(response.videosToMatch).toHaveLength(2);
-    expect(response.videosToMatch).toEqual(expect.arrayContaining([
-      { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-      { myAnimeListId: 1, dub: 'Dub', episode: 2 },
-    ]));
+    expect(response.videosToMatch).toEqual(
+      expect.arrayContaining([
+        { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+        { myAnimeListId: 1, dub: 'Dub', episode: 2 },
+      ]),
+    );
 
     const rows = await table.getAllRecords();
-    expect(rows.filter(x => x.matchingGroup === '1#Dub').every(x => x.matchingStatus === 2)).toBe(true);
-    expect(rows.find(x => x.primaryKey === '2#Dub#1')?.matchingStatus).toBe(1);
+    expect(rows.filter((x) => x.matchingGroup === '1#Dub').every((x) => x.matchingStatus === 2)).toBe(true);
+    expect(rows.find((x) => x.primaryKey === '2#Dub#1')?.matchingStatus).toBe(1);
     await performCommonChecks(table);
   });
 
@@ -103,23 +105,27 @@ describe('get-series-to-match', () => {
       },
     );
 
-    const response = await handler(undefined, null as never, null as never) as {
+    const response = (await handler(undefined, null as never, null as never)) as {
       videosToMatch: { myAnimeListId: number; dub: string; episode: number }[];
     };
 
     expect(response.videosToMatch).toHaveLength(2);
-    expect(response.videosToMatch).toEqual(expect.arrayContaining([
-      { myAnimeListId: 1, dub: 'Dub', episode: 3 },
-      { myAnimeListId: 1, dub: 'Dub', episode: 4 },
-    ]));
+    expect(response.videosToMatch).toEqual(
+      expect.arrayContaining([
+        { myAnimeListId: 1, dub: 'Dub', episode: 3 },
+        { myAnimeListId: 1, dub: 'Dub', episode: 4 },
+      ]),
+    );
 
     const rows = await table.getAllRecords();
-    expect(rows.every(x => x.matchingStatus === 2)).toBe(true);
-    expect(rows.map(x => x.matchingPerformedAttempts)).toEqual([2, 3]);
+    expect(rows.every((x) => x.matchingStatus === 2)).toBe(true);
+    expect(rows.map((x) => x.matchingPerformedAttempts)).toEqual([2, 3]);
     await performCommonChecks(table);
   });
 
-  it('REQ-GSTM-05: skips failed matcher groups that reached attempt limit or are still cooling down', async ({ table }) => {
+  it('REQ-GSTM-05: skips failed matcher groups that reached attempt limit or are still cooling down', async ({
+    table,
+  }) => {
     const recentIso = new Date().toISOString();
 
     await table.putRecords(
@@ -153,14 +159,14 @@ describe('get-series-to-match', () => {
       },
     );
 
-    const response = await handler(undefined, null as never, null as never) as {
+    const response = (await handler(undefined, null as never, null as never)) as {
       videosToMatch: { myAnimeListId: number; dub: string; episode: number }[];
     };
 
     expect(response).toEqual({ videosToMatch: [] });
 
     const rows = await table.getAllRecords();
-    expect(rows.map(x => x.matchingStatus)).toEqual([5, 5]);
+    expect(rows.map((x) => x.matchingStatus)).toEqual([5, 5]);
     await performCommonChecks(table);
   });
 });

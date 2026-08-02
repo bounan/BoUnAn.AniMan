@@ -8,9 +8,15 @@ describe('register-videos', () => {
   it('REQ-RV-01: rejects invalid requests', async ({ table }) => {
     const initialState = await table.getAllRecords();
 
-    await expect(handler({
-      items: [{ videoKey: { myAnimeListId: 0, dub: 'Dub', episode: 1 } }],
-    }, null as never, null as never)).rejects.toThrow('Invalid request');
+    await expect(
+      handler(
+        {
+          items: [{ videoKey: { myAnimeListId: 0, dub: 'Dub', episode: 1 } }],
+        },
+        null as never,
+        null as never,
+      ),
+    ).rejects.toThrow('Invalid request');
 
     await expectNoDbChanges(initialState, table);
   });
@@ -32,9 +38,13 @@ describe('register-videos', () => {
     });
     const initialState = await table.getAllRecords();
 
-    await handler({
-      items: [{ videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 } }],
-    }, null as never, null as never);
+    await handler(
+      {
+        items: [{ videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 } }],
+      },
+      null as never,
+      null as never,
+    );
 
     expect(published.messages).toHaveLength(0);
     await expectNoDbChanges(initialState, table);
@@ -56,30 +66,38 @@ describe('register-videos', () => {
       updatedAt: '2025-01-01T00:00:00.000Z',
     });
 
-    await handler({
-      items: [
-        { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 } },
-        { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 2 } },
-      ],
-    }, null as never, null as never);
+    await handler(
+      {
+        items: [
+          { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 } },
+          { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 2 } },
+        ],
+      },
+      null as never,
+      null as never,
+    );
 
     const rows = await table.getAllRecords();
-    expect(rows.map(x => x.primaryKey)).toEqual(['1#Dub#1', '1#Dub#2']);
-    expect(rows.find(x => x.primaryKey === '1#Dub#2')?.matchingGroup).toBe('1#Dub');
+    expect(rows.map((x) => x.primaryKey)).toEqual(['1#Dub#1', '1#Dub#2']);
+    expect(rows.find((x) => x.primaryKey === '1#Dub#2')?.matchingGroup).toBe('1#Dub');
     expect(published.messages).toHaveLength(1);
     await performCommonChecks(table);
   });
 
   it('REQ-RV-04: does not assign matching group to episode 0 or 1', async ({ table }) => {
-    await handler({
-      items: [
-        { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 0 } },
-        { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 } },
-      ],
-    }, null as never, null as never);
+    await handler(
+      {
+        items: [
+          { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 0 } },
+          { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 } },
+        ],
+      },
+      null as never,
+      null as never,
+    );
 
     const rows = await table.getAllRecords();
-    expect(rows.find(x => x.primaryKey === '1#Dub#0')?.matchingGroup).toBeUndefined();
-    expect(rows.find(x => x.primaryKey === '1#Dub#1')?.matchingGroup).toBeUndefined();
+    expect(rows.find((x) => x.primaryKey === '1#Dub#0')?.matchingGroup).toBeUndefined();
+    expect(rows.find((x) => x.primaryKey === '1#Dub#1')?.matchingGroup).toBeUndefined();
   });
 });

@@ -29,11 +29,10 @@ export class AniManCdkStack extends cfn.Stack {
 
     const config = getConfig(this, '/bounan/animan/deploy-config/');
 
-    const loanApiFunction = lambda.Function.fromFunctionAttributes(
-      this, 'LoanApiFunction', {
-        functionArn: config.loanApiFunctionArn,
-        skipPermissions: true,
-      });
+    const loanApiFunction = lambda.Function.fromFunctionAttributes(this, 'LoanApiFunction', {
+      functionArn: config.loanApiFunctionArn,
+      skipPermissions: true,
+    });
 
     const { table, indexes } = this.createFilesTable();
     const topics = this.createSnsTopics();
@@ -66,8 +65,8 @@ export class AniManCdkStack extends cfn.Stack {
   }
 
   private createFilesTable(): {
-    table: dynamodb.Table,
-    indexes: Record<RequiredIndex, dynamodb.GlobalSecondaryIndexProps>,
+    table: dynamodb.Table;
+    indexes: Record<RequiredIndex, dynamodb.GlobalSecondaryIndexProps>;
     // eslint-disable-next-line indent
   } {
     const indexCapacities: Partial<dynamodb.TableProps> = {
@@ -99,7 +98,13 @@ export class AniManCdkStack extends cfn.Stack {
       partitionKey: { name: 'status', type: dynamodb.AttributeType.NUMBER },
       sortKey: { name: 'sortKey', type: dynamodb.AttributeType.STRING },
       projectionType: dynamodb.ProjectionType.INCLUDE,
-      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'downloadPerformedAttempts'] as (keyof VideoEntity)[],
+      nonKeyAttributes: [
+        'myAnimeListId',
+        'dub',
+        'episode',
+        'updatedAt',
+        'downloadPerformedAttempts',
+      ] as (keyof VideoEntity)[],
       ...indexCapacities,
     };
 
@@ -108,7 +113,13 @@ export class AniManCdkStack extends cfn.Stack {
       partitionKey: { name: 'matchingStatus', type: dynamodb.AttributeType.NUMBER },
       sortKey: { name: 'matchingGroup', type: dynamodb.AttributeType.STRING },
       projectionType: dynamodb.ProjectionType.INCLUDE,
-      nonKeyAttributes: ['myAnimeListId', 'dub', 'episode', 'updatedAt', 'matchingPerformedAttempts'] as (keyof VideoEntity)[],
+      nonKeyAttributes: [
+        'myAnimeListId',
+        'dub',
+        'episode',
+        'updatedAt',
+        'matchingPerformedAttempts',
+      ] as (keyof VideoEntity)[],
       ...indexCapacities,
     };
 

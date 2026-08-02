@@ -21,7 +21,7 @@ export const getVideosByVideoKeys = async (videoKeys: VideoKey[]): Promise<Video
     return [];
   }
 
-  const keys = videoKeys.map(videoKey => ({ [TABLE_PRIMARY_KEY]: getVideoKey(videoKey) }));
+  const keys = videoKeys.map((videoKey) => ({ [TABLE_PRIMARY_KEY]: getVideoKey(videoKey) }));
   const chunks = splitToChunks(keys, GET_OPERATION_LIMIT);
 
   const videos: VideoEntity[] = [];
@@ -44,14 +44,16 @@ export const getVideosByVideoKeys = async (videoKeys: VideoKey[]): Promise<Video
 };
 
 const getVideoKeysByAnimeKey = async (animeKey: AnimeKey): Promise<VideoKey[]> => {
-  const response = await docClient.send(new QueryCommand({
-    TableName: config.value.database.tableName,
-    IndexName: config.value.database.animeKeyIndexName,
-    KeyConditionExpression: 'animeKey = :animeKey',
-    ExpressionAttributeValues: {
-      ':animeKey': getAnimeKey(animeKey.myAnimeListId, animeKey.dub),
-    },
-  }));
+  const response = await docClient.send(
+    new QueryCommand({
+      TableName: config.value.database.tableName,
+      IndexName: config.value.database.animeKeyIndexName,
+      KeyConditionExpression: 'animeKey = :animeKey',
+      ExpressionAttributeValues: {
+        ':animeKey': getAnimeKey(animeKey.myAnimeListId, animeKey.dub),
+      },
+    }),
+  );
 
   const videoKeys = response.Items as VideoKey[] | undefined;
   logger.info('Video keys found by anime key', { animeKey, count: videoKeys?.length ?? 0 });

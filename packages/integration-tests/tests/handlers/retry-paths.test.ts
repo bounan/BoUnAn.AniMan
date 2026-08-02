@@ -19,15 +19,12 @@ afterEach(() => {
 
 describe('handler retry paths', () => {
   it('retries get-anime when repository access fails transiently', async () => {
-    const getAnimeForUser = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('temporary'))
-      .mockResolvedValueOnce({
-        status: 3,
-        messageId: 42,
-        scenes: undefined,
-        publishingDetails: undefined,
-      });
+    const getAnimeForUser = vi.fn().mockRejectedValueOnce(new Error('temporary')).mockResolvedValueOnce({
+      status: 3,
+      messageId: 42,
+      scenes: undefined,
+      publishingDetails: undefined,
+    });
 
     vi.doMock('../../../app/src/handlers/get-anime/repository', () => ({
       getAnimeForUser,
@@ -35,9 +32,13 @@ describe('handler retry paths', () => {
     }));
 
     const { handler } = await import('../../../app/src/handlers/get-anime/handler');
-    const response = await handler({
-      videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-    }, null as never, null as never);
+    const response = await handler(
+      {
+        videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+      },
+      null as never,
+      null as never,
+    );
 
     expect(response).toEqual({
       status: 'Downloaded',
@@ -98,9 +99,13 @@ describe('handler retry paths', () => {
     }));
 
     const { handler } = await import('../../../app/src/handlers/register-videos/handler');
-    await handler({
-      items: [{ videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 } }],
-    }, null as never, null as never);
+    await handler(
+      {
+        items: [{ videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 } }],
+      },
+      null as never,
+      null as never,
+    );
 
     expect(getExistingVideos).toHaveBeenCalledTimes(2);
     expect(sendVideoRegisteredNotification).toHaveBeenCalledTimes(1);
@@ -114,14 +119,18 @@ describe('handler retry paths', () => {
     }));
 
     const { handler } = await import('../../../app/src/handlers/update-publishing-details/handler');
-    await handler({
-      items: [
-        {
-          videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-          publishingDetails: { threadId: 10, messageId: 20 },
-        },
-      ],
-    }, null as never, null as never);
+    await handler(
+      {
+        items: [
+          {
+            videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+            publishingDetails: { threadId: 10, messageId: 20 },
+          },
+        ],
+      },
+      null as never,
+      null as never,
+    );
 
     expect(savePublishingDetails).toHaveBeenCalledTimes(2);
   });
@@ -138,7 +147,9 @@ describe('handler retry paths', () => {
     }));
 
     const { handler } = await import('../../../app/src/handlers/update-video-scenes/handler');
-    const items = [{ videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 }, scenes: { opening: { start: 1, end: 2 } } }];
+    const items = [
+      { videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 }, scenes: { opening: { start: 1, end: 2 } } },
+    ];
     await handler({ items }, null as never, null as never);
 
     expect(updateVideoScenes).toHaveBeenCalledTimes(2);
@@ -146,15 +157,12 @@ describe('handler retry paths', () => {
   });
 
   it('retries update-video-status when the status update fails once', async () => {
-    const markVideoDownloaded = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('temporary'))
-      .mockResolvedValueOnce({
-        myAnimeListId: 1,
-        dub: 'Dub',
-        episode: 1,
-        status: 3,
-      });
+    const markVideoDownloaded = vi.fn().mockRejectedValueOnce(new Error('temporary')).mockResolvedValueOnce({
+      myAnimeListId: 1,
+      dub: 'Dub',
+      episode: 1,
+      status: 3,
+    });
     const sendVideoDownloadedNotification = vi.fn().mockResolvedValue(undefined);
 
     vi.doMock('../../../app/src/handlers/update-video-status/repository', () => ({
@@ -166,10 +174,14 @@ describe('handler retry paths', () => {
     }));
 
     const { handler } = await import('../../../app/src/handlers/update-video-status/handler');
-    await handler({
-      videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-      messageId: 123,
-    }, null as never, null as never);
+    await handler(
+      {
+        videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+        messageId: 123,
+      },
+      null as never,
+      null as never,
+    );
 
     expect(markVideoDownloaded).toHaveBeenCalledTimes(2);
     expect(sendVideoDownloadedNotification).toHaveBeenCalledTimes(1);

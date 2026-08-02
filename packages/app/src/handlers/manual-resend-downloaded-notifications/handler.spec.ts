@@ -51,8 +51,9 @@ describe('packages/app/src/handlers/manual-resend-downloaded-notifications/handl
   it('throws before publishing when any requested key is not found', async () => {
     const module = await import('./handler');
 
-    await expect(module.handler(['1#Dub#1'], null as never, null as never))
-      .rejects.toThrow('Requested key was not found as downloaded');
+    await expect(module.handler(['1#Dub#1'], null as never, null as never)).rejects.toThrow(
+      'Requested key was not found as downloaded',
+    );
 
     expect(getVideosByVideoKeysMock).toHaveBeenCalledWith([{ myAnimeListId: 1, dub: 'Dub', episode: 1 }]);
     expect(sendVideoDownloadedNotificationMock).not.toHaveBeenCalled();
@@ -78,8 +79,9 @@ describe('packages/app/src/handlers/manual-resend-downloaded-notifications/handl
 
     const module = await import('./handler');
 
-    await expect(module.handler(['1#Dub'], null as never, null as never))
-      .rejects.toThrow('Requested key was not found as downloaded');
+    await expect(module.handler(['1#Dub'], null as never, null as never)).rejects.toThrow(
+      'Requested key was not found as downloaded',
+    );
 
     expect(sendVideoDownloadedNotificationMock).not.toHaveBeenCalled();
   });
@@ -106,9 +108,7 @@ describe('packages/app/src/handlers/manual-resend-downloaded-notifications/handl
         messageId: 22,
       },
     ]);
-    getVideosByVideoKeysMock.mockResolvedValue([
-      duplicateVideo,
-    ]);
+    getVideosByVideoKeysMock.mockResolvedValue([duplicateVideo]);
 
     const module = await import('./handler');
     await module.handler(['1#Dub', '1#Dub#1'], null as never, null as never);

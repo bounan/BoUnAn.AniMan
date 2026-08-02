@@ -19,7 +19,7 @@ const downloadedVideo = (episode: number, overrides: Record<string, unknown> = {
 });
 
 const readPublishedDefaults = (messages: unknown[]): unknown[] => {
-  return messages.map(message => {
+  return messages.map((message) => {
     const input = message as { Message: string };
     return JSON.parse(JSON.parse(input.Message).default);
   });
@@ -60,8 +60,9 @@ describe('resend-downloaded-notifications', () => {
     await table.putRecords(downloadedVideo(1));
     const initialState = await table.getAllRecords();
 
-    await expect(handler(['1#Dub#1', '1#Dub#2'], null as never, null as never))
-      .rejects.toThrow('Requested key was not found as downloaded');
+    await expect(handler(['1#Dub#1', '1#Dub#2'], null as never, null as never)).rejects.toThrow(
+      'Requested key was not found as downloaded',
+    );
 
     expect(published.messages).toEqual([]);
     await expectNoDbChanges(initialState, table);
@@ -69,14 +70,12 @@ describe('resend-downloaded-notifications', () => {
 
   it('REQ-RDN-03: sends no notifications when any resolved video is not downloaded', async ({ table, aws, config }) => {
     const published = aws.captureSns(config.topics.videoDownloadedTopicArn);
-    await table.putRecords(
-      downloadedVideo(1),
-      downloadedVideo(2, { status: 1, messageId: undefined }),
-    );
+    await table.putRecords(downloadedVideo(1), downloadedVideo(2, { status: 1, messageId: undefined }));
     const initialState = await table.getAllRecords();
 
-    await expect(handler(['1#Dub'], null as never, null as never))
-      .rejects.toThrow('Requested key was not found as downloaded');
+    await expect(handler(['1#Dub'], null as never, null as never)).rejects.toThrow(
+      'Requested key was not found as downloaded',
+    );
 
     expect(published.messages).toEqual([]);
     await expectNoDbChanges(initialState, table);

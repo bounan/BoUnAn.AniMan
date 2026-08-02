@@ -25,7 +25,7 @@ const getStatus = (item: MatcherResultRequestItem): MatchingStatusNum => {
   }
 
   return MatchingStatusNum.ProcessedWithNoResults;
-}
+};
 
 const buildScenes = (itemScenes: Scenes): VideoEntity['scenes'] => {
   const scenes: VideoEntity['scenes'] = {};

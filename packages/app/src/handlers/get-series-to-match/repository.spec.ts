@@ -47,29 +47,34 @@ describe('packages/app/src/handlers/get-series-to-match/repository.ts', () => {
   it('loads matcher groups, updates them, and returns work items', async () => {
     sendMock
       .mockResolvedValueOnce({
-        Items: [{
-          primaryKey: '1#Dub#1',
-          updatedAt: '2024-01-01T00:00:00.000Z',
-          myAnimeListId: 1,
-          dub: 'Dub',
-          episode: 1,
-          matchingGroup: '1#Dub',
-        }],
+        Items: [
+          {
+            primaryKey: '1#Dub#1',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+            myAnimeListId: 1,
+            dub: 'Dub',
+            episode: 1,
+            matchingGroup: '1#Dub',
+          },
+        ],
       })
       .mockResolvedValueOnce({
-        Items: [{
-          primaryKey: '1#Dub#1',
-          updatedAt: '2024-01-01T00:00:00.000Z',
-          myAnimeListId: 1,
-          dub: 'Dub',
-          episode: 1,
-        }, {
-          primaryKey: '1#Dub#2',
-          updatedAt: '2024-01-01T00:00:01.000Z',
-          myAnimeListId: 1,
-          dub: 'Dub',
-          episode: 2,
-        }],
+        Items: [
+          {
+            primaryKey: '1#Dub#1',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+            myAnimeListId: 1,
+            dub: 'Dub',
+            episode: 1,
+          },
+          {
+            primaryKey: '1#Dub#2',
+            updatedAt: '2024-01-01T00:00:01.000Z',
+            myAnimeListId: 1,
+            dub: 'Dub',
+            episode: 2,
+          },
+        ],
       })
       .mockResolvedValueOnce({})
       .mockResolvedValueOnce({});
@@ -103,8 +108,9 @@ describe('packages/app/src/handlers/get-series-to-match/repository.ts', () => {
       ExpressionAttributeNames: Record<string, string>;
       ExpressionAttributeValues: Record<string, number | string>;
     };
-    expect(firstScan.FilterExpression)
-      .toBe('#S = :pending OR (#S = :failed AND #matchingPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)');
+    expect(firstScan.FilterExpression).toBe(
+      '#S = :pending OR (#S = :failed AND #matchingPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
+    );
     expect(firstScan.ExpressionAttributeNames['#matchingPerformedAttempts']).toBe('matchingPerformedAttempts');
     expect(firstScan.ExpressionAttributeValues[':failed']).toBe(5);
     expect(firstScan.ExpressionAttributeValues[':maxAttempts']).toBe(5);
@@ -113,8 +119,9 @@ describe('packages/app/src/handlers/get-series-to-match/repository.ts', () => {
       ConditionExpression: string;
       ExpressionAttributeNames: Record<string, string>;
     };
-    expect(updateCommand.ConditionExpression)
-      .toBe('updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #matchingPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))');
+    expect(updateCommand.ConditionExpression).toBe(
+      'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #matchingPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
+    );
     expect(updateCommand.ExpressionAttributeNames['#matchingPerformedAttempts']).toBe('matchingPerformedAttempts');
   });
 
@@ -143,14 +150,16 @@ describe('packages/app/src/handlers/get-series-to-match/repository.ts', () => {
   it('stops matcher processing when the group scan is empty', async () => {
     sendMock
       .mockResolvedValueOnce({
-        Items: [{
-          primaryKey: '1#Dub#1',
-          updatedAt: '2024-01-01T00:00:00.000Z',
-          myAnimeListId: 1,
-          dub: 'Dub',
-          episode: 1,
-          matchingGroup: '1#Dub',
-        }],
+        Items: [
+          {
+            primaryKey: '1#Dub#1',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+            myAnimeListId: 1,
+            dub: 'Dub',
+            episode: 1,
+            matchingGroup: '1#Dub',
+          },
+        ],
       })
       .mockResolvedValueOnce({ Items: [] });
 
@@ -177,25 +186,29 @@ describe('packages/app/src/handlers/get-series-to-match/repository.ts', () => {
   it('loads retryable failed matcher groups and marks them as processing', async () => {
     sendMock
       .mockResolvedValueOnce({
-        Items: [{
-          primaryKey: '1#Dub#3',
-          updatedAt: '2024-01-01T00:00:00.000Z',
-          myAnimeListId: 1,
-          dub: 'Dub',
-          episode: 3,
-          matchingGroup: '1#Dub',
-          matchingPerformedAttempts: 2,
-        }],
+        Items: [
+          {
+            primaryKey: '1#Dub#3',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+            myAnimeListId: 1,
+            dub: 'Dub',
+            episode: 3,
+            matchingGroup: '1#Dub',
+            matchingPerformedAttempts: 2,
+          },
+        ],
       })
       .mockResolvedValueOnce({
-        Items: [{
-          primaryKey: '1#Dub#3',
-          updatedAt: '2024-01-01T00:00:00.000Z',
-          myAnimeListId: 1,
-          dub: 'Dub',
-          episode: 3,
-          matchingPerformedAttempts: 2,
-        }],
+        Items: [
+          {
+            primaryKey: '1#Dub#3',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+            myAnimeListId: 1,
+            dub: 'Dub',
+            episode: 3,
+            matchingPerformedAttempts: 2,
+          },
+        ],
       })
       .mockResolvedValueOnce({});
 
@@ -215,9 +228,7 @@ describe('packages/app/src/handlers/get-series-to-match/repository.ts', () => {
     });
 
     const module = await import('./repository');
-    await expect(module.getEpisodesToMatch()).resolves.toEqual([
-      { myAnimeListId: 1, dub: 'Dub', episode: 3 },
-    ]);
+    await expect(module.getEpisodesToMatch()).resolves.toEqual([{ myAnimeListId: 1, dub: 'Dub', episode: 3 }]);
 
     expect(updateInput).toHaveLength(1);
   });

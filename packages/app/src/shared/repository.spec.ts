@@ -55,7 +55,9 @@ describe('packages/app/src/shared/repository.ts', () => {
     const repository = await import('./repository');
     const { VideoStatusNum } = await import('../models/video-status-num');
 
-    expect(repository.getDownloaderKey(VideoStatusNum.Downloaded, false, '2026-01-01T00:00:00.000Z', 1)).toBeUndefined();
+    expect(
+      repository.getDownloaderKey(VideoStatusNum.Downloaded, false, '2026-01-01T00:00:00.000Z', 1),
+    ).toBeUndefined();
   });
 
   it('batches inserts in groups of 25 and sends all commands', async () => {
@@ -109,11 +111,11 @@ describe('packages/app/src/shared/repository.ts', () => {
     const batch = batchWriteInput[0] as {
       RequestItems: Record<string, { PutRequest: { Item: { episode: number; matchingGroup?: string } } }[]>;
     };
-    const items = batch.RequestItems.videos.map(x => x.PutRequest.Item);
+    const items = batch.RequestItems.videos.map((x) => x.PutRequest.Item);
 
-    expect(items.find(x => x.episode === 0)?.matchingGroup).toBeUndefined();
-    expect(items.find(x => x.episode === 1)?.matchingGroup).toBeUndefined();
-    expect(items.find(x => x.episode === 2)?.matchingGroup).toBe('1#Dub');
+    expect(items.find((x) => x.episode === 0)?.matchingGroup).toBeUndefined();
+    expect(items.find((x) => x.episode === 1)?.matchingGroup).toBeUndefined();
+    expect(items.find((x) => x.episode === 2)?.matchingGroup).toBe('1#Dub');
   });
 
   it('updates the subscriber priority sort key', async () => {

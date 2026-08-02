@@ -86,9 +86,7 @@ describe('packages/app/src/handlers/register-videos/repository.ts', () => {
     });
 
     const module = await import('./repository');
-    await expect(module.getExistingVideos([
-      { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-    ])).resolves.toEqual([]);
+    await expect(module.getExistingVideos([{ myAnimeListId: 1, dub: 'Dub', episode: 1 }])).resolves.toEqual([]);
   });
 
   it('returns no existing videos when batch response omits Responses', async () => {
@@ -105,8 +103,6 @@ describe('packages/app/src/handlers/register-videos/repository.ts', () => {
     });
 
     const module = await import('./repository');
-    await expect(module.getExistingVideos([
-      { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-    ])).resolves.toEqual([]);
+    await expect(module.getExistingVideos([{ myAnimeListId: 1, dub: 'Dub', episode: 1 }])).resolves.toEqual([]);
   });
 });

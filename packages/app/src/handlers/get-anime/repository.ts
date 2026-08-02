@@ -15,8 +15,8 @@ export const getAnimeForUser = async (videoKey: VideoKey): Promise<GetAnimeForUs
   });
 
   const response = await docClient.send(command);
-  return response.Item as (Pick<VideoEntity, 'status' | 'messageId' | 'scenes' | 'publishingDetails'> | undefined);
-}
+  return response.Item as Pick<VideoEntity, 'status' | 'messageId' | 'scenes' | 'publishingDetails'> | undefined;
+};
 
 export const getRegisteredEpisodes = async (myAnimeListId: number, dub: string): Promise<number[]> => {
   const command = new ScanCommand({
@@ -30,6 +30,6 @@ export const getRegisteredEpisodes = async (myAnimeListId: number, dub: string):
     },
   });
 
-  const response = await docClient.send(command) as unknown as { Items?: { episode: number }[] };
-  return response.Items?.map(item => item.episode) ?? [];
-}
+  const response = (await docClient.send(command)) as unknown as { Items?: { episode: number }[] };
+  return response.Items?.map((item) => item.episode) ?? [];
+};

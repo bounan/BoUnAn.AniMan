@@ -79,9 +79,7 @@ describe('packages/app/src/handlers/register-videos/handler.ts', () => {
         { videoKey: { myAnimeListId: 20, dub: 'Sub', episode: 3 } },
       ],
     };
-    getExistingVideosMock.mockResolvedValue([
-      { myAnimeListId: 20, dub: 'Sub', episode: 2 },
-    ]);
+    getExistingVideosMock.mockResolvedValue([{ myAnimeListId: 20, dub: 'Sub', episode: 2 }]);
 
     const module = await import('./handler');
     await module.handler(request, null as never, null as never);

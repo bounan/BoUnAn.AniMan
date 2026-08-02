@@ -32,10 +32,12 @@ describe('packages/app/src/handlers/update-video-scenes/handler.ts', () => {
 
   it('updates scenes and then sends scene-recognized notifications', async () => {
     const request = {
-      items: [{
-        videoKey: { myAnimeListId: 7, dub: 'Dub', episode: 8 },
-        scenes: { opening: { start: 1, end: 2 } },
-      }],
+      items: [
+        {
+          videoKey: { myAnimeListId: 7, dub: 'Dub', episode: 8 },
+          scenes: { opening: { start: 1, end: 2 } },
+        },
+      ],
     };
 
     const module = await import('./handler');

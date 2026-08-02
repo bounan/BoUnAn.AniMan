@@ -15,55 +15,62 @@ const getRetryThreshold = (): string => {
 export const getEpisodeToDownloadAndLock = async (): Promise<GetEpisodeToDownloadResult | undefined> => {
   const retryThreshold = getRetryThreshold();
 
-  const pendingVideosResponse = await docClient.send(new ScanCommand({
-    TableName: config.value.database.tableName,
-    IndexName: config.value.database.secondaryIndexName,
-    Limit: 10, // Scan a few items to reduce chance of empty result
-    FilterExpression: '#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
-    ExpressionAttributeNames: {
-      '#S': 'status',
-      '#downloadPerformedAttempts': 'downloadPerformedAttempts',
-      '#updatedAt': 'updatedAt',
-    },
-    ExpressionAttributeValues: {
-      ':pending': VideoStatusNum.Pending,
-      ':failed': VideoStatusNum.Failed,
-      ':maxAttempts': config.value.downloadRetry.maxAttempts,
-      ':retryThreshold': retryThreshold,
-    },
-    Select: 'ALL_PROJECTED_ATTRIBUTES',
-  }));
+  const pendingVideosResponse = await docClient.send(
+    new ScanCommand({
+      TableName: config.value.database.tableName,
+      IndexName: config.value.database.secondaryIndexName,
+      Limit: 10, // Scan a few items to reduce chance of empty result
+      FilterExpression:
+        '#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
+      ExpressionAttributeNames: {
+        '#S': 'status',
+        '#downloadPerformedAttempts': 'downloadPerformedAttempts',
+        '#updatedAt': 'updatedAt',
+      },
+      ExpressionAttributeValues: {
+        ':pending': VideoStatusNum.Pending,
+        ':failed': VideoStatusNum.Failed,
+        ':maxAttempts': config.value.downloadRetry.maxAttempts,
+        ':retryThreshold': retryThreshold,
+      },
+      Select: 'ALL_PROJECTED_ATTRIBUTES',
+    }),
+  );
 
   const video = pendingVideosResponse.Items?.[0] as
-    Pick<VideoEntity, 'primaryKey' | 'updatedAt' | 'myAnimeListId' | 'dub' | 'episode' | 'downloadPerformedAttempts'> | undefined;
+    | Pick<VideoEntity, 'primaryKey' | 'updatedAt' | 'myAnimeListId' | 'dub' | 'episode' | 'downloadPerformedAttempts'>
+    | undefined;
   if (!video) {
     return undefined;
   }
 
-  await docClient.send(new UpdateCommand({
-    TableName: config.value.database.tableName,
-    Key: { primaryKey: video.primaryKey },
-    UpdateExpression: 'SET #S = :downloading, updatedAt = :now',
-    ConditionExpression: 'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
-    ExpressionAttributeNames: {
-      '#S': 'status',
-      '#downloadPerformedAttempts': 'downloadPerformedAttempts',
-    },
-    ExpressionAttributeValues: {
-      ':pending': VideoStatusNum.Pending,
-      ':failed': VideoStatusNum.Failed,
-      ':maxAttempts': config.value.downloadRetry.maxAttempts,
-      ':retryThreshold': retryThreshold,
-      ':downloading': VideoStatusNum.Downloading,
-      ':oldUpdatedAt': video.updatedAt,
-      ':now': new Date().toISOString(),
-    },
-    ReturnValues: 'NONE',
-  }));
+  await docClient.send(
+    new UpdateCommand({
+      TableName: config.value.database.tableName,
+      Key: { primaryKey: video.primaryKey },
+      UpdateExpression: 'SET #S = :downloading, updatedAt = :now',
+      ConditionExpression:
+        'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
+      ExpressionAttributeNames: {
+        '#S': 'status',
+        '#downloadPerformedAttempts': 'downloadPerformedAttempts',
+      },
+      ExpressionAttributeValues: {
+        ':pending': VideoStatusNum.Pending,
+        ':failed': VideoStatusNum.Failed,
+        ':maxAttempts': config.value.downloadRetry.maxAttempts,
+        ':retryThreshold': retryThreshold,
+        ':downloading': VideoStatusNum.Downloading,
+        ':oldUpdatedAt': video.updatedAt,
+        ':now': new Date().toISOString(),
+      },
+      ReturnValues: 'NONE',
+    }),
+  );
 
   return {
     episode: video.episode,
     myAnimeListId: video.myAnimeListId,
     dub: video.dub,
   };
-}
+};

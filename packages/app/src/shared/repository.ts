@@ -15,16 +15,16 @@ export const docClient = DynamoDBDocumentClient.from(dynamoDbClient);
 
 export const getVideoKey = (videoKey: VideoKey): string => {
   return `${videoKey.myAnimeListId}#${videoKey.dub}#${videoKey.episode}`;
-}
+};
 
 export const getAnimeKey = (myAnimeListId: number, dub: string): string => {
   return `${myAnimeListId}#${dub}`;
-}
+};
 
 const getMatchingGroup = (myAnimeListId: number, dub: string, episode: number): string | undefined => {
   // Skip a matching group around a lone first video. Matcher cannot recognize a single video anyway.
   return episode > 1 ? getAnimeKey(myAnimeListId, dub) : undefined;
-}
+};
 
 export const getDownloaderKey = (
   status: VideoStatusNum,
@@ -35,24 +35,27 @@ export const getDownloaderKey = (
   return status === VideoStatusNum.Pending
     ? `${hasSubscriber ? '0' : '1'}#${createdAt}#${episode.toString().padStart(4, '0')}`
     : undefined;
-}
+};
 
 export const insertVideo = async (videos: VideoKey[]): Promise<void> => {
-  const putCommands = videos.map(video => ({
-    primaryKey: getVideoKey(video),
-    animeKey: getAnimeKey(video.myAnimeListId, video.dub),
-    sortKey: getDownloaderKey(VideoStatusNum.Pending, false, new Date().toISOString(), video.episode),
-    matchingGroup: getMatchingGroup(video.myAnimeListId, video.dub, video.episode),
-    myAnimeListId: video.myAnimeListId,
-    dub: video.dub,
-    episode: video.episode,
-    status: VideoStatusNum.Pending,
-    matchingStatus: MatchingStatusNum.Pending,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    downloadPerformedAttempts: 0,
-    matchingPerformedAttempts: 0,
-  } as VideoEntity));
+  const putCommands = videos.map(
+    (video) =>
+      ({
+        primaryKey: getVideoKey(video),
+        animeKey: getAnimeKey(video.myAnimeListId, video.dub),
+        sortKey: getDownloaderKey(VideoStatusNum.Pending, false, new Date().toISOString(), video.episode),
+        matchingGroup: getMatchingGroup(video.myAnimeListId, video.dub, video.episode),
+        myAnimeListId: video.myAnimeListId,
+        dub: video.dub,
+        episode: video.episode,
+        status: VideoStatusNum.Pending,
+        matchingStatus: MatchingStatusNum.Pending,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        downloadPerformedAttempts: 0,
+        matchingPerformedAttempts: 0,
+      }) as VideoEntity,
+  );
 
   const batches = putCommands.reduce((acc, item, index) => {
     const batchIndex = Math.floor(index / 25);
@@ -61,15 +64,18 @@ export const insertVideo = async (videos: VideoKey[]): Promise<void> => {
     return acc;
   }, [] as VideoEntity[][]);
 
-  const commands = batches.map(batch => new BatchWriteCommand({
-    RequestItems: {
-      [config.value.database.tableName]: batch.map(item => ({
-        PutRequest: {
-          Item: item, // TODO: PK check?
+  const commands = batches.map(
+    (batch) =>
+      new BatchWriteCommand({
+        RequestItems: {
+          [config.value.database.tableName]: batch.map((item) => ({
+            PutRequest: {
+              Item: item, // TODO: PK check?
+            },
+          })),
         },
-      })),
-    },
-  }));
+      }),
+  );
 
   for (const command of commands) {
     const result = await docClient.send(command);
@@ -77,7 +83,7 @@ export const insertVideo = async (videos: VideoKey[]): Promise<void> => {
   }
 
   logger.info('All videos inserted');
-}
+};
 
 export const increasePriority = async (videoKey: VideoKey): Promise<void> => {
   const command = new UpdateCommand({
@@ -92,4 +98,4 @@ export const increasePriority = async (videoKey: VideoKey): Promise<void> => {
   });
 
   await docClient.send(command);
-}
+};

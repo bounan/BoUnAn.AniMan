@@ -68,11 +68,13 @@ describe('packages/app/src/handlers/manual-resend-downloaded-notifications/repos
     });
 
     const module = await import('./repository');
-    const videos = await module.getVideosByVideoKeys(Array.from({ length: 101 }, (_, index) => ({
-      myAnimeListId: 1,
-      dub: 'Dub',
-      episode: index + 1,
-    })));
+    const videos = await module.getVideosByVideoKeys(
+      Array.from({ length: 101 }, (_, index) => ({
+        myAnimeListId: 1,
+        dub: 'Dub',
+        episode: index + 1,
+      })),
+    );
 
     expect(batchGetInput).toHaveLength(2);
     expect(batchGetInput[0]).toEqual({
@@ -99,9 +101,7 @@ describe('packages/app/src/handlers/manual-resend-downloaded-notifications/repos
     });
 
     const module = await import('./repository');
-    await expect(module.getVideosByVideoKeys([
-      { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-    ])).resolves.toEqual([]);
+    await expect(module.getVideosByVideoKeys([{ myAnimeListId: 1, dub: 'Dub', episode: 1 }])).resolves.toEqual([]);
   });
 
   it('returns no videos for empty video key input', async () => {
@@ -162,21 +162,28 @@ describe('packages/app/src/handlers/manual-resend-downloaded-notifications/repos
     const module = await import('./repository');
     const videos = await module.getVideosByAnimeKey({ myAnimeListId: 1, dub: 'Dub' });
 
-    expect(queryInput).toEqual([{
-      TableName: 'videos',
-      IndexName: 'anime-index',
-      KeyConditionExpression: 'animeKey = :animeKey',
-      ExpressionAttributeValues: {
-        ':animeKey': '1#Dub',
-      },
-    }]);
-    expect(batchGetInput).toEqual([{
-      RequestItems: {
-        videos: {
-          Keys: [{ primaryKey: '1#Dub#1' }, { primaryKey: '1#Dub#2' }],
+    expect(queryInput).toEqual([
+      {
+        TableName: 'videos',
+        IndexName: 'anime-index',
+        KeyConditionExpression: 'animeKey = :animeKey',
+        ExpressionAttributeValues: {
+          ':animeKey': '1#Dub',
         },
       },
-    }]);
-    expect(videos).toEqual([{ primaryKey: '1#Dub#1', messageId: 11 }, { primaryKey: '1#Dub#2', messageId: 22 }]);
+    ]);
+    expect(batchGetInput).toEqual([
+      {
+        RequestItems: {
+          videos: {
+            Keys: [{ primaryKey: '1#Dub#1' }, { primaryKey: '1#Dub#2' }],
+          },
+        },
+      },
+    ]);
+    expect(videos).toEqual([
+      { primaryKey: '1#Dub#1', messageId: 11 },
+      { primaryKey: '1#Dub#2', messageId: 22 },
+    ]);
   });
 });

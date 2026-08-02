@@ -8,7 +8,6 @@ import { savePublishingDetails } from './repository';
 
 const logger = createLogger('handlers/update-publishing-details');
 
-
 const process = async (request: PublisherResultRequest): Promise<void> => {
   for (const item of request.items) {
     await savePublishingDetails(item.videoKey, item.publishingDetails);

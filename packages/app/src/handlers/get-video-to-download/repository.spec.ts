@@ -47,13 +47,15 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
   it('locks the first download candidate when available', async () => {
     sendMock
       .mockResolvedValueOnce({
-        Items: [{
-          primaryKey: '1#Dub#5',
-          updatedAt: '2024-01-01T00:00:00.000Z',
-          myAnimeListId: 1,
-          dub: 'Dub',
-          episode: 5,
-        }],
+        Items: [
+          {
+            primaryKey: '1#Dub#5',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+            myAnimeListId: 1,
+            dub: 'Dub',
+            episode: 5,
+          },
+        ],
       })
       .mockResolvedValueOnce({});
 
@@ -87,7 +89,9 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
       ExpressionAttributeNames: Record<string, string>;
       ExpressionAttributeValues: Record<string, number | string>;
     };
-    expect(scanCommand.FilterExpression).toBe('#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)');
+    expect(scanCommand.FilterExpression).toBe(
+      '#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
+    );
     expect(scanCommand.ExpressionAttributeNames['#downloadPerformedAttempts']).toBe('downloadPerformedAttempts');
     expect(scanCommand.ExpressionAttributeNames['#updatedAt']).toBe('updatedAt');
     expect(scanCommand.ExpressionAttributeValues[':pending']).toBe(1);
@@ -100,8 +104,9 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
       ExpressionAttributeNames: Record<string, string>;
       ExpressionAttributeValues: Record<string, number | string>;
     };
-    expect(updateCommand.ConditionExpression)
-      .toBe('updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))');
+    expect(updateCommand.ConditionExpression).toBe(
+      'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
+    );
     expect(updateCommand.ExpressionAttributeNames['#downloadPerformedAttempts']).toBe('downloadPerformedAttempts');
     expect(updateCommand.ExpressionAttributeValues[':failed']).toBe(4);
     expect(updateCommand.ExpressionAttributeValues[':maxAttempts']).toBe(5);
@@ -110,14 +115,16 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
   it('locks retryable failed videos after the cooldown window', async () => {
     sendMock
       .mockResolvedValueOnce({
-        Items: [{
-          primaryKey: '1#Dub#6',
-          updatedAt: '2024-01-01T00:00:00.000Z',
-          myAnimeListId: 1,
-          dub: 'Dub',
-          episode: 6,
-          downloadPerformedAttempts: 2,
-        }],
+        Items: [
+          {
+            primaryKey: '1#Dub#6',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+            myAnimeListId: 1,
+            dub: 'Dub',
+            episode: 6,
+            downloadPerformedAttempts: 2,
+          },
+        ],
       })
       .mockResolvedValueOnce({});
 

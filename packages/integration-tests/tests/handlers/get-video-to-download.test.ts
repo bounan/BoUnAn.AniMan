@@ -36,7 +36,9 @@ describe('get-video-to-download', () => {
     await performCommonChecks(table);
   });
 
-  it('REQ-GVTD-03: returns and locks a failed video when retry window elapsed and attempts stay below limit', async ({ table }) => {
+  it('REQ-GVTD-03: returns and locks a failed video when retry window elapsed and attempts stay below limit', async ({
+    table,
+  }) => {
     await table.putRecords({
       primaryKey: '1#Dub#3',
       animeKey: '1#Dub',
@@ -103,7 +105,7 @@ describe('get-video-to-download', () => {
     expect(response).toEqual({ videoKey: undefined });
 
     const rows = await table.getAllRecords();
-    expect(rows.map(row => row.status)).toEqual([4, 4]);
+    expect(rows.map((row) => row.status)).toEqual([4, 4]);
     await performCommonChecks(table);
   });
 });

@@ -4,7 +4,7 @@ import { publishJsonMessage } from '../../shared/sns-publisher';
 
 export const sendVideoRegisteredNotification = async (items: VideoKey[]): Promise<void> => {
   const obj: VideoRegisteredNotification = {
-    items: items.map(item => ({ videoKey: item })),
+    items: items.map((item) => ({ videoKey: item })),
   };
 
   await publishJsonMessage<VideoRegisteredNotification>(config.value.topics.videoRegisteredTopicArn, obj);

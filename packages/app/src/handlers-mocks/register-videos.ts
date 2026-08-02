@@ -3,7 +3,6 @@
 import type { RegisterVideosRequest } from '../../../../third-party/common/ts/interfaces';
 import { createLogger } from '../../../../third-party/common/ts/runtime/logger';
 
-
 const logger = createLogger('handlers-mocks/register-videos');
 
 export const handler: Handler<RegisterVideosRequest> = async (request) => {

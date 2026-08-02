@@ -33,10 +33,7 @@ describe('packages/app/src/handlers/update-video-scenes/repository.ts', () => {
   });
 
   it('updates scenes for each matcher outcome and keeps going after failures', async () => {
-    sendMock
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({})
-      .mockRejectedValueOnce(new Error('boom'));
+    sendMock.mockResolvedValueOnce({}).mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('boom'));
 
     const configModule = await import('../../config/config');
     Object.defineProperty(configModule.config, 'value', {
@@ -50,15 +47,19 @@ describe('packages/app/src/handlers/update-video-scenes/repository.ts', () => {
 
     const module = await import('./repository');
     await module.updateVideoScenes({
-      items: [{
-        videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-        scenes: { opening: { start: 1, end: 2 } },
-      }, {
-        videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 2 },
-        scenes: {},
-      }, {
-        videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 3 },
-      }],
+      items: [
+        {
+          videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 1 },
+          scenes: { opening: { start: 1, end: 2 } },
+        },
+        {
+          videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 2 },
+          scenes: {},
+        },
+        {
+          videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 3 },
+        },
+      ],
     });
 
     const successCommand = updateInput[0] as {
@@ -77,7 +78,9 @@ describe('packages/app/src/handlers/update-video-scenes/repository.ts', () => {
       ExpressionAttributeValues: Record<string, number | string>;
     };
     expect(failedCommand.UpdateExpression).not.toContain('REMOVE matchingGroup');
-    expect(failedCommand.UpdateExpression).toContain('#matchingPerformedAttempts = #matchingPerformedAttempts + :attemptIncrement');
+    expect(failedCommand.UpdateExpression).toContain(
+      '#matchingPerformedAttempts = #matchingPerformedAttempts + :attemptIncrement',
+    );
     expect(failedCommand.ExpressionAttributeNames['#matchingPerformedAttempts']).toBe('matchingPerformedAttempts');
     expect(failedCommand.ExpressionAttributeValues[':attemptIncrement']).toBe(1);
   });
@@ -97,13 +100,15 @@ describe('packages/app/src/handlers/update-video-scenes/repository.ts', () => {
 
     const module = await import('./repository');
     await module.updateVideoScenes({
-      items: [{
-        videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 4 },
-        scenes: {
-          ending: { start: 10, end: 20 },
-          sceneAfterEnding: { start: 21, end: 30 },
+      items: [
+        {
+          videoKey: { myAnimeListId: 1, dub: 'Dub', episode: 4 },
+          scenes: {
+            ending: { start: 10, end: 20 },
+            sceneAfterEnding: { start: 21, end: 30 },
+          },
         },
-      }],
+      ],
     });
 
     const command = updateInput[0] as {

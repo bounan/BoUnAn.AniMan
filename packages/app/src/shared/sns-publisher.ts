@@ -19,4 +19,3 @@ export const publishJsonMessage = async <T>(topicArn: string, payload: T): Promi
   await snsClient.send(command);
   logger.info('Notification sent', { message });
 };
-

@@ -8,7 +8,6 @@ import { getEpisodeToDownloadAndLock } from './repository';
 
 const logger = createLogger('handlers/get-video-to-download');
 
-
 const process = async (): Promise<DownloaderResponse> => {
   const videoToDownload = await getEpisodeToDownloadAndLock();
   logger.info('Video to download', { videoToDownload });

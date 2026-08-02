@@ -46,10 +46,7 @@ describe('packages/app/src/handlers/update-publishing-details/repository.ts', ()
     });
 
     const module = await import('./repository');
-    await module.savePublishingDetails(
-      { myAnimeListId: 1, dub: 'Dub', episode: 1 },
-      { threadId: 5, messageId: 6 },
-    );
+    await module.savePublishingDetails({ myAnimeListId: 1, dub: 'Dub', episode: 1 }, { threadId: 5, messageId: 6 });
 
     const command = updateInput[0] as {
       ExpressionAttributeValues: Record<string, { threadId: number; messageId: number }>;
