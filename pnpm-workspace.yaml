@@ -16,8 +16,8 @@ catalog:
   '@aws-sdk/lib-dynamodb': 3.1154.0
   '@types/aws-lambda': 8.10.164
   '@types/node': 25.9.9
-  '@vitest/coverage-v8': 4.1.12
-  '@vitest/ui': 4.1.12
+  '@vitest/coverage-v8': 5.0.5
+  '@vitest/ui': 5.0.5
   aws-cdk: 2.1146.0
   aws-cdk-lib: 2.274.0
   cdk-lambda-llrt: 0.1.4
@@ -27,7 +27,7 @@ catalog:
   knip: 6.42.1
   npm-run-all2: 9.0.3
   typescript: 7.0.2
-  vitest: 4.1.12
+  vitest: 5.0.5
 
 # Delay newly published versions for one day to reduce supply-chain risk.
 minimumReleaseAge: 1440
