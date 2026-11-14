@@ -90,7 +90,7 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
       ExpressionAttributeValues: Record<string, number | string>;
     };
     expect(scanCommand.FilterExpression).toBe(
-      '#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
+      '#S = :pending OR ((#S = :failed OR #S = :downloading) AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
     );
     expect(scanCommand.ExpressionAttributeNames['#downloadPerformedAttempts']).toBe('downloadPerformedAttempts');
     expect(scanCommand.ExpressionAttributeNames['#updatedAt']).toBe('updatedAt');
@@ -105,7 +105,7 @@ describe('packages/app/src/handlers/get-video-to-download/repository.ts', () => 
       ExpressionAttributeValues: Record<string, number | string>;
     };
     expect(updateCommand.ConditionExpression).toBe(
-      'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
+      'updatedAt = :oldUpdatedAt AND (#S = :pending OR ((#S = :failed OR #S = :downloading) AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
     );
     expect(updateCommand.ExpressionAttributeNames['#downloadPerformedAttempts']).toBe('downloadPerformedAttempts');
     expect(updateCommand.ExpressionAttributeValues[':failed']).toBe(4);

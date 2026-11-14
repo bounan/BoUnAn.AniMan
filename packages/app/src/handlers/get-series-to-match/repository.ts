@@ -20,7 +20,7 @@ export const getEpisodesToMatch = async (): Promise<GetEpisodesToMatchResult> =>
       IndexName: config.value.database.matcherSecondaryIndexName,
       Limit: 100,
       FilterExpression:
-        '#S = :pending OR (#S = :failed AND #matchingPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
+        '#S = :pending OR ((#S = :failed OR #S = :processing) AND #matchingPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
       ExpressionAttributeNames: {
         '#S': 'matchingStatus',
         '#matchingPerformedAttempts': 'matchingPerformedAttempts',
@@ -29,6 +29,7 @@ export const getEpisodesToMatch = async (): Promise<GetEpisodesToMatchResult> =>
       ExpressionAttributeValues: {
         ':pending': MatchingStatusNum.Pending,
         ':failed': MatchingStatusNum.Failed,
+        ':processing': MatchingStatusNum.Processing,
         ':maxAttempts': config.value.matchingRetry.maxAttempts,
         ':retryThreshold': retryThreshold,
       },
@@ -51,7 +52,7 @@ export const getEpisodesToMatch = async (): Promise<GetEpisodesToMatchResult> =>
       TableName: config.value.database.tableName,
       IndexName: config.value.database.matcherSecondaryIndexName,
       FilterExpression:
-        'matchingGroup = :group AND (#S = :pending OR (#S = :failed AND #matchingPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold))',
+        'matchingGroup = :group AND (#S = :pending OR ((#S = :failed OR #S = :processing) AND #matchingPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold))',
       ExpressionAttributeNames: {
         '#S': 'matchingStatus',
         '#matchingPerformedAttempts': 'matchingPerformedAttempts',
@@ -61,6 +62,7 @@ export const getEpisodesToMatch = async (): Promise<GetEpisodesToMatchResult> =>
         ':group': firstVideo.matchingGroup,
         ':pending': MatchingStatusNum.Pending,
         ':failed': MatchingStatusNum.Failed,
+        ':processing': MatchingStatusNum.Processing,
         ':maxAttempts': config.value.matchingRetry.maxAttempts,
         ':retryThreshold': retryThreshold,
       },
@@ -79,7 +81,7 @@ export const getEpisodesToMatch = async (): Promise<GetEpisodesToMatchResult> =>
         Key: { primaryKey: video.primaryKey },
         UpdateExpression: 'SET #S = :processing, updatedAt = :now',
         ConditionExpression:
-          'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #matchingPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
+          'updatedAt = :oldUpdatedAt AND (#S = :pending OR ((#S = :failed OR #S = :processing) AND #matchingPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
         ExpressionAttributeNames: {
           '#S': 'matchingStatus',
           '#matchingPerformedAttempts': 'matchingPerformedAttempts',

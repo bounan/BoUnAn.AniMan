@@ -5,6 +5,44 @@ import { it } from '../../fixtures';
 import { performCommonChecks } from '../../tools/custom-expectations';
 
 describe('get-series-to-match', () => {
+  it('redrives stale in-progress work but skips work still cooling down', async ({ table }) => {
+    const recentIso = new Date().toISOString();
+    await table.putRecords(
+      {
+        primaryKey: '1#Dub#7',
+        animeKey: '1#Dub',
+        myAnimeListId: 1,
+        dub: 'Dub',
+        episode: 7,
+        status: 1,
+        matchingStatus: 2,
+        sortKey: '1#2025-01-01T00:00:00.000Z#0007',
+        matchingGroup: '1#Dub',
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-01T00:00:00.000Z',
+        matchingPerformedAttempts: 2,
+      },
+      {
+        primaryKey: '2#Dub#8',
+        animeKey: '2#Dub',
+        myAnimeListId: 2,
+        dub: 'Dub',
+        episode: 8,
+        status: 1,
+        matchingStatus: 2,
+        sortKey: '1#2099-01-01T00:00:00.000Z#0008',
+        matchingGroup: '2#Dub',
+        createdAt: recentIso,
+        updatedAt: recentIso,
+        matchingPerformedAttempts: 2,
+      },
+    );
+    const response = await handler(undefined, null as never, null as never);
+    expect(response).toEqual({ videosToMatch: [{ myAnimeListId: 1, dub: 'Dub', episode: 7 }] });
+    const rows = await table.getAllRecords();
+    expect(rows.find((row) => row.primaryKey === '2#Dub#8')?.updatedAt).toBe(recentIso);
+  });
+
   it('REQ-GSTM-01: returns empty when no pending group exists', async () => {
     const response = (await handler(undefined, null as never, null as never)) as {
       videosToMatch: { myAnimeListId: number; dub: string; episode: number }[];

@@ -21,7 +21,7 @@ export const getEpisodeToDownloadAndLock = async (): Promise<GetEpisodeToDownloa
       IndexName: config.value.database.secondaryIndexName,
       Limit: 10, // Scan a few items to reduce chance of empty result
       FilterExpression:
-        '#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
+        '#S = :pending OR ((#S = :failed OR #S = :downloading) AND #downloadPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
       ExpressionAttributeNames: {
         '#S': 'status',
         '#downloadPerformedAttempts': 'downloadPerformedAttempts',
@@ -30,6 +30,7 @@ export const getEpisodeToDownloadAndLock = async (): Promise<GetEpisodeToDownloa
       ExpressionAttributeValues: {
         ':pending': VideoStatusNum.Pending,
         ':failed': VideoStatusNum.Failed,
+        ':downloading': VideoStatusNum.Downloading,
         ':maxAttempts': config.value.downloadRetry.maxAttempts,
         ':retryThreshold': retryThreshold,
       },
@@ -50,7 +51,7 @@ export const getEpisodeToDownloadAndLock = async (): Promise<GetEpisodeToDownloa
       Key: { primaryKey: video.primaryKey },
       UpdateExpression: 'SET #S = :downloading, updatedAt = :now',
       ConditionExpression:
-        'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
+        'updatedAt = :oldUpdatedAt AND (#S = :pending OR ((#S = :failed OR #S = :downloading) AND #downloadPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
       ExpressionAttributeNames: {
         '#S': 'status',
         '#downloadPerformedAttempts': 'downloadPerformedAttempts',

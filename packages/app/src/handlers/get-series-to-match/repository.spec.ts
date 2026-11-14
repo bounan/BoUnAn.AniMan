@@ -109,7 +109,7 @@ describe('packages/app/src/handlers/get-series-to-match/repository.ts', () => {
       ExpressionAttributeValues: Record<string, number | string>;
     };
     expect(firstScan.FilterExpression).toBe(
-      '#S = :pending OR (#S = :failed AND #matchingPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
+      '#S = :pending OR ((#S = :failed OR #S = :processing) AND #matchingPerformedAttempts < :maxAttempts AND #updatedAt < :retryThreshold)',
     );
     expect(firstScan.ExpressionAttributeNames['#matchingPerformedAttempts']).toBe('matchingPerformedAttempts');
     expect(firstScan.ExpressionAttributeValues[':failed']).toBe(5);
@@ -120,7 +120,7 @@ describe('packages/app/src/handlers/get-series-to-match/repository.ts', () => {
       ExpressionAttributeNames: Record<string, string>;
     };
     expect(updateCommand.ConditionExpression).toBe(
-      'updatedAt = :oldUpdatedAt AND (#S = :pending OR (#S = :failed AND #matchingPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
+      'updatedAt = :oldUpdatedAt AND (#S = :pending OR ((#S = :failed OR #S = :processing) AND #matchingPerformedAttempts < :maxAttempts AND updatedAt < :retryThreshold))',
     );
     expect(updateCommand.ExpressionAttributeNames['#matchingPerformedAttempts']).toBe('matchingPerformedAttempts');
   });
