@@ -15,7 +15,7 @@ catalog:
   "@aws-sdk/client-ssm": 3.1171.0
   "@aws-sdk/lib-dynamodb": 3.1171.0
   "@types/aws-lambda": 8.10.164
-  "@types/node": 25.9.9
+  "@types/node": 26.6.6
   "@vitest/coverage-v8": 5.1.1
   "@vitest/ui": 5.1.1
   aws-cdk: 2.1148.1
